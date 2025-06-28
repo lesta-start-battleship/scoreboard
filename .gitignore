@@ -1,8 +1,7 @@
-.venv/*
-.idea/*
+.venv
+.idea
 .env
 app/__p*
 app/config/__p*
-app/controllers/__p*
 .DS*
 *__pycache__*
