@@ -1,5 +1,6 @@
 # app
 pydantic==2.11.7
+dotenv
 
 # backend
 fastapi==0.115.14
