@@ -10,6 +10,7 @@ dependencies = [
     "fastapi>=0.115.14",
     "psycopg2-binary>=2.9.10",
     "pydantic>=2.11.7",
+    "pyfa-converter-v2>=2.0.0rc1",
     "sqlalchemy>=2.0.41",
     "uvicorn>=0.35.0",
 ]
