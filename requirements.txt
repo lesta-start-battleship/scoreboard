@@ -1,10 +1,13 @@
 # app
 pydantic==2.11.7
-dotenv
+dotenv==0.9.9
 
 # backend
 fastapi==0.115.14
 uvicorn==0.35.0
+
+# kafka
+aiokafka==0.12.0
 
 # db
 sqlalchemy==2.0.41
