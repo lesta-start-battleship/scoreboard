@@ -2,15 +2,15 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from sqlalchemy.engine.create import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.engine.url import URL
-from sqlalchemy.orm.session import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from app.config.preferences import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 from app.database.models.base import Base
 
 DATABASE_URL = URL.create(
-    drivername="postgresql",
+    drivername="postgresql+asyncpg",
     username=DB_USER,
     password=DB_PASSWORD,
     database=DB_NAME,
@@ -18,27 +18,29 @@ DATABASE_URL = URL.create(
     port=DB_PORT
 )
 
-engine = create_engine(url=DATABASE_URL, echo=True)
+engine = create_async_engine(url=DATABASE_URL, echo=True)
 
-db_session = sessionmaker(engine)
+async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 @asynccontextmanager
 async def init_db(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield
 
 
-def get_db():
-    db = db_session()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db():
+    async with async_session() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 async def main():
-    Base.metadata.create_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 if __name__ == '__main__':
     asyncio.run(main())
