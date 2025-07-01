@@ -18,3 +18,12 @@ dependencies = [
 dev = [
     "pytest>=8.4.1",
 ]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+atomic = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
