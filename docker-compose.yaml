@@ -1,21 +1,4 @@
 services:
-  sb-kafka:
-    image: confluentinc/cp-kafka:7.6.0
-    container_name: sb-kafka
-    ports:
-      - "9092:9092"
-    environment:
-      - KAFKA_NODE_ID=${KAFKA_NODE_ID}
-      - KAFKA_PROCESS_ROLES=${KAFKA_PROCESS_ROLES}
-      - KAFKA_CONTROLLER_QUORUM_VOTERS=${KAFKA_CONTROLLER_QUORUM_VOTERS}
-      - KAFKA_LISTENERS=${KAFKA_LISTENERS}
-      - KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS}
-      - KAFKA_CONTROLLER_LISTENER_NAMES=${KAFKA_CONTROLLER_LISTENER_NAMES}
-      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
-      - CLUSTER_ID=${CLUSTER_ID}
-    volumes:
-      - sb-kafka:/tmp/kraft-combined-logs
-
   sb_pg:
     image: postgres:15-alpine
     restart: always
