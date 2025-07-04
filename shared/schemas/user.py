@@ -1,7 +1,7 @@
 from typing import Literal
 from uuid import UUID
 from pydantic import BaseModel, Field
-from app.schemas.pagination import PaginationResponse
+from shared.schemas.pagination import PaginationResponse
 
 
 class UserSchema(BaseModel):

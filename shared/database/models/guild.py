@@ -3,8 +3,8 @@ from typing import List
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.attributes import Mapped
 
-from app.database.models.base import Base
-from app.database.models.war_result import WarResult
+from shared.database.models.base import Base
+from shared.database.models.war_result import WarResult
 
 
 class Guild(Base):

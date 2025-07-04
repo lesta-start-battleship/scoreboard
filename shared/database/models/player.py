@@ -1,7 +1,7 @@
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm.attributes import Mapped
 
-from app.database.models.base import Base
+from shared.database.models.base import Base
 
 
 class Player(Base):

@@ -12,9 +12,10 @@ from shared.repositories.user_repository import UserRepository
 class UserConsumer:
     def __init__(self, kafka_servers: str, topic: str):
         self.topic = topic
+        self.kafka_servers = kafka_servers
         self.consumer = AIOKafkaConsumer(
             self.topic,
-            bootstrap_servers=kafka_servers,
+            bootstrap_servers=self.kafka_servers,
             group_id="user_group_consumer"
         )
 

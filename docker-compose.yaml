@@ -1,4 +1,5 @@
 services:
+
   sb-postgres:
     image: postgres:15-alpine
     container_name: sb-postgres
@@ -33,7 +34,6 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
 
-
   user-worker:
     build:
       context: .
@@ -43,5 +43,14 @@ services:
     environment:
       - USER_SERVER=${USER_SERVER}
       - NEW_USER_TOPIC=${NEW_USER_TOPIC}
+      - CURRENCY_CHANGE_TOPIC=${CURRENCY_CHANGE_TOPIC}
+      - USERNAME_CHANGE_TOPIC=${USERNAME_CHANGE_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - sb-postgres
 volumes:
   sb-pg:

@@ -1,13 +1,13 @@
-FROM python:3.13-slim
+FROM python:3.12-slim
 
 WORKDIR /app
-COPY requirements.txt .
+COPY broker/requirements.txt .
 
 RUN pip install -r requirements.txt
 
-COPY /app/schemas ./app/schemas
+COPY shared ./shared
 
-COPY broker /app/broker
+COPY broker ./broker
 
 ENV PYTHONPATH=/app
 

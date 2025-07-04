@@ -2,8 +2,8 @@ from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.attributes import Mapped
 from sqlalchemy.sql.schema import ForeignKey
 
-from app.database.models.base import Base
-from app.database.models.guild import Guild
+from shared.database.models.base import Base
+from shared.database.models.guild import Guild
 
 
 class WarResult(Base):
