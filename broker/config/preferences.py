@@ -7,3 +7,4 @@ load_dotenv()
 # broker
 USER_SERVER = getenv("USER_SERVER")
 NEW_USER_TOPIC = getenv("NEW_USER_TOPIC")
+USERNAME_CHANGE_TOPIC = getenv("USERNAME_CHANGE_TOPIC")
