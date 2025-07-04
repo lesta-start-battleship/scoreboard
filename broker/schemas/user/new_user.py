@@ -4,7 +4,7 @@ from broker.schemas.user.currencies import Currencies
 
 
 class NewUserDTO(BaseModel):
-    id: int
+    user_id: int
     username: str
     email: str
     currencies: Currencies
