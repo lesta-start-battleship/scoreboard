@@ -10,3 +10,6 @@ class UserRepository:
 
     async def update_username(self, *, user_id: int, username: str):
         pass
+
+    async def update_currency(self, *, user_id: int, gold: int, guild_rage: int):
+        pass
