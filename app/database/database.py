@@ -2,7 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from pydantic import PostgresDsn
 
@@ -22,6 +22,10 @@ def get_db_name() -> str:
     return str(DATABASE_URL)
 
 
+async def dispose_db(engine: AsyncEngine) -> None:
+    await engine.dispose()
+
+
 engine = create_async_engine(url=get_db_name(), echo=True)
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)
@@ -32,6 +36,7 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+    await dispose_db(engine)
 
 
 async def main():
