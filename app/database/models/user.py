@@ -4,8 +4,8 @@ from sqlalchemy.orm.attributes import Mapped
 from app.database.models.base import Base
 
 
-class Player(Base):
-    __tablename__ = "player"
+class User(Base):
+    __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int]
