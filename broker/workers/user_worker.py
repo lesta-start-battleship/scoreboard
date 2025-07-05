@@ -1,6 +1,11 @@
 import asyncio
 
-from broker.config.preferences import USER_SERVER, NEW_USER_TOPIC, USERNAME_CHANGE_TOPIC, CURRENCY_CHANGE_TOPIC
+from broker.config.preferences import (
+    USER_SERVER,
+    NEW_USER_TOPIC,
+    USERNAME_CHANGE_TOPIC,
+    CURRENCY_CHANGE_TOPIC,
+)
 from broker.consumers.user_consumer import UserConsumer
 
 
