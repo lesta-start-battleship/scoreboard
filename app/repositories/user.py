@@ -8,6 +8,15 @@ async def create_user(
     name: str,
     gold: int,
 ) -> User:
+    """
+    Добавить пользователя в базу данных
+
+    :param session: Сессия базы данных
+    :param user_id: id пользователя из внешней базы данных
+    :param name: Никнейм пользователя
+    :param gold: Золото пользователя
+    :return: Пользователь, добавленный в базу данных
+    """
     user = User(
         user_id=user_id,
         name=name,
