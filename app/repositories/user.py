@@ -55,7 +55,7 @@ async def update_user(
     :param containers: Количество добавленных контейнеров
     :return: Пользователь с обновленными данными
     """
-    user = await _get_user_by_foreign_id(session=session, user_id=user_id)
+    user = await get_user_by_foreign_id(session=session, user_id=user_id)
     if name:
         user.name = name
     if gold:
@@ -72,7 +72,7 @@ async def update_user(
 
 
 
-async def _get_user_by_foreign_id(
+async def get_user_by_foreign_id(
     session: AsyncSession,
     user_id: int,
 ) -> User:
