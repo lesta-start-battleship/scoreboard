@@ -1,8 +1,9 @@
 services:
-  sb_pg:
+
+  sb-postgres:
     image: postgres:15-alpine
+    container_name: sb-postgres
     restart: always
-    container_name: sb_pg
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -25,12 +26,68 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - sb_pg
+      - sb-postgres
     environment:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
+
+  user-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: user-worker
+    command: python -m broker.workers.user_worker
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - NEW_USER_TOPIC=${NEW_USER_TOPIC}
+      - CURRENCY_CHANGE_TOPIC=${CURRENCY_CHANGE_TOPIC}
+      - USERNAME_CHANGE_TOPIC=${USERNAME_CHANGE_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - sb-postgres
+
+  shop-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: shop-worker
+    command: python -m broker.workers.shop_worker
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - CHEST_OPEN_TOPIC=${CHEST_OPEN_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - sb-postgres
+
+  guild-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: guild-worker
+    command: python -m broker.workers.guild_worker
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - GUILD_CREATE_TOPIC=${GUILD_CREATE_TOPIC}
+      - GUILD_DELETE_TOPIC=${GUILD_DELETE_TOPIC}
+      - GUILD_MEMBER_CHANGE_TOPIC=${GUILD_MEMBER_CHANGE_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - sb-postgres
+
 volumes:
   sb-pg:
