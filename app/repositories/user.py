@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from typing import Sequence
+
+from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
@@ -71,7 +73,6 @@ async def update_user(
     return user
 
 
-
 async def get_user_by_foreign_id(
     session: AsyncSession,
     user_id: int,
@@ -93,3 +94,32 @@ async def get_user_by_foreign_id(
     if user is None:
         raise exception
     return user
+
+
+async def get_users_rating(
+    session: AsyncSession,
+    gold: bool = False,
+    experience: bool = False,
+    containers: bool = False,
+) -> Sequence[User]:
+    """
+    Получить рейтинг пользователей на основе заданного параметра.
+    Если ни один параметр не задан, сортировка строится на основе рейтинга
+
+    :param session: Сессия базы данных
+    :param gold: Если требуется рейтинг на основе золота
+    :param experience: Если требуется рейтинг на основе опыта
+    :param containers: Если требуется рейтинг на основе открытых контейнеров
+    :return: Возвращает последовательность пользователей, отсортированных по заданному критерию
+    """
+    if gold:
+        stmt = select(User).order_by(desc(User.gold))
+    elif experience:
+        stmt = select(User).order_by(desc(User.experience))
+    elif containers:
+        stmt = select(User).order_by(desc(User.containers))
+    else:
+        stmt = select(User).order_by(desc(User.rating))
+    result = await session.execute(stmt)
+    users = result.scalars().all()
+    return users
