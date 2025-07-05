@@ -33,6 +33,45 @@ async def create_user(
     return user
 
 
+async def update_user(
+    session: AsyncSession,
+    user_id: int,
+    name: str | None = None,
+    gold: int | None = None,
+    experience: int | None = None,
+    rating: int | None = None,
+    containers: int | None = None,
+) -> User:
+    """
+    Обновить данные пользователя. Возможно обновление одного и более параметров.
+    Параметры, обновление которых не требуется, можно не указывать
+
+    :param session: Сессия базы данных
+    :param user_id: id пользователя из внешней базы данных
+    :param name: Новый никнейм пользователя
+    :param gold: Новый баланс золота пользователя
+    :param experience: Количество добавленного опыта
+    :param rating: Количество добавленного рейтинга
+    :param containers: Количество добавленных контейнеров
+    :return: Пользователь с обновленными данными
+    """
+    user = await _get_user_by_foreign_id(session=session, user_id=user_id)
+    if name:
+        user.name = name
+    if gold:
+        user.gold = gold
+    if experience:
+        user.experience += experience
+    if rating:
+        user.rating += rating
+    if containers:
+        user.containers += containers
+    await session.commit()
+    await session.refresh(user)
+    return user
+
+
+
 async def _get_user_by_foreign_id(
     session: AsyncSession,
     user_id: int,
