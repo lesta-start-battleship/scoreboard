@@ -70,5 +70,24 @@ services:
     depends_on:
       - sb-postgres
 
+  guild-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: guild-worker
+    command: python -m broker.workers.guild_worker
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - GUILD_CREATE_TOPIC=${GUILD_CREATE_TOPIC}
+      - GUILD_DELETE_TOPIC=${GUILD_DELETE_TOPIC}
+      - GUILD_MEMBER_CHANGE_TOPIC=${GUILD_MEMBER_CHANGE_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - sb-postgres
+
 volumes:
   sb-pg:
