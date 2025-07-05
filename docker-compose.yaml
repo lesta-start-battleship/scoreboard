@@ -41,7 +41,7 @@ services:
     container_name: user-worker
     command: python -m broker.workers.user_worker
     environment:
-      - USER_SERVER=${USER_SERVER}
+      - KAFKA_SERVER=${KAFKA_SERVER}
       - NEW_USER_TOPIC=${NEW_USER_TOPIC}
       - CURRENCY_CHANGE_TOPIC=${CURRENCY_CHANGE_TOPIC}
       - USERNAME_CHANGE_TOPIC=${USERNAME_CHANGE_TOPIC}

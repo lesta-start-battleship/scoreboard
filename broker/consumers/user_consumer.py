@@ -16,7 +16,7 @@ class UserConsumer:
         self.consumer = AIOKafkaConsumer(
             self.topic,
             bootstrap_servers=self.kafka_servers,
-            group_id="user_group_consumer"
+            group_id="scoreboard.user.consumer"
         )
 
     async def consume(self):
