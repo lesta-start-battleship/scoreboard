@@ -103,3 +103,17 @@ async def get_guilds_rating(
     result = await session.execute(stmt)
     guilds = result.scalars().all()
     return guilds
+
+
+async def delete_guild(session: AsyncSession, guild_id: int):
+    """
+    Удалить гильдию из базы данных
+
+    :param session: Сессия базы данных
+    :param guild_id: id гильдии из внешней базы данных
+    :return: True в случае успешного удаления
+    """
+    guild = await get_guild_by_foreign_id(session=session, guild_id=guild_id)
+    await session.delete(guild)
+    await session.commit()
+    return True
