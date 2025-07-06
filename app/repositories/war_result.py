@@ -1,6 +1,9 @@
+from typing import Sequence
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
+
 from app.database.models.war_result import WarResult
 from app.database.models.guild import Guild
 
@@ -90,6 +93,19 @@ async def get_war_result_by_foreign_id(
     if war_result is None:
         raise exception
     return war_result
+
+
+async def get_all_war_result(session: AsyncSession) -> Sequence[WarResult]:
+    """
+    Получить все счёты войн гильдий
+
+    :param session: Сессия базы данных
+    :return: Последовательность объектов Результат войны
+    """
+    stmt = select(WarResult)
+    result = await session.execute(stmt)
+    war_results = result.scalars().all()
+    return war_results
 
 
 async def _get_winner_tag(
