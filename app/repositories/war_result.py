@@ -62,6 +62,8 @@ async def update_war_result(
         war_result.defender_score += defender_score
     if winner_id:
         war_result.winner_id = winner_id
+        tag = await _get_winner_tag(session=session, winner_id=winner_id)
+        war_result.winner_tag = tag
     await session.commit()
     await session.refresh(war_result)
     return war_result
