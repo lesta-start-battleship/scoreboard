@@ -30,6 +30,41 @@ async def create_war_result(
     return war_result
 
 
+async def update_war_result(
+    session: AsyncSession,
+    war_id: int,
+    attacker_score: int | None = None,
+    defender_score: int | None = None,
+    winner: int | None = None,
+) -> WarResult:
+    """
+    Обновить данные счёта о войне гильдий
+
+    :param session: Сессия базы данных
+    :param war_id: id войны, в рамках которой ведётся счёт
+    :param attacker_score: Количество добавленных очков атакующей гильдии
+    :param defender_score: Количество добавленных очков защищающейся гильдии
+    :param winner: id победившей гильдии
+    :return: Объект Результаты войны с обновленными данными
+    """
+    exception = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="War result has winner, update not allow",
+    )
+    war_result = await get_war_result_by_foreign_id(session=session, war_id=war_id)
+    if war_result.winner is not None:
+        raise exception
+    if attacker_score:
+        war_result.attacker_score += attacker_score
+    if defender_score:
+        war_result.defender_score += defender_score
+    if winner:
+        war_result.winner = winner
+    await session.commit()
+    await session.refresh(war_result)
+    return war_result
+
+
 async def get_war_result_by_foreign_id(
     session: AsyncSession,
     war_id: int,
