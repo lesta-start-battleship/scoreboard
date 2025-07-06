@@ -1,4 +1,6 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException, status
 from app.database.models.war_result import WarResult
 
 
@@ -25,4 +27,27 @@ async def create_war_result(
     session.add(war_result)
     await session.commit()
     await session.refresh(war_result)
+    return war_result
+
+
+async def get_war_result_by_foreign_id(
+    session: AsyncSession,
+    war_id: int,
+) -> WarResult:
+    """
+    Получить данные о счёте в войне гильдий на основе id из внешнего сервиса
+
+    :param session: Сессия базы данных
+    :param war_id: id войны, в рамках которой ведётся счёт
+    :return: Объект Результаты войны, извлеченный из базы данных
+    """
+    exception = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="War result not found",
+    )
+    stmt = select(WarResult).where(WarResult.war_id == war_id)
+    result = await session.execute(stmt)
+    war_result = result.scalar_one_or_none()
+    if war_result is None:
+        raise exception
     return war_result
