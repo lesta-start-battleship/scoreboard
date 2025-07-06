@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 from app.database.models.war_result import WarResult
+from app.database.models.guild import Guild
 
 
 async def create_war_result(
@@ -86,3 +87,20 @@ async def get_war_result_by_foreign_id(
     if war_result is None:
         raise exception
     return war_result
+
+
+async def _get_winner_tag(
+    session: AsyncSession,
+    winner_id: int,
+) -> str:
+    """
+    Получить тэг победившей гильдии
+
+    :param session: Сессия базы данных
+    :param winner_id: id победившей гильдии
+    :return: Строка, содержащая искомый тег
+    """
+    stmt = select(Guild.tag).where(Guild.guild_id == winner_id)
+    result = await session.execute(stmt)
+    tag = result.scalar_one_or_none()
+    return tag
