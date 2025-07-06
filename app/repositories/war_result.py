@@ -24,6 +24,7 @@ async def create_war_result(
         attacker_score=0,
         defender_score=0,
         winner_id=None,
+        winner_tag=None,
     )
     session.add(war_result)
     await session.commit()
