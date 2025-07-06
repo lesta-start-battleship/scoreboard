@@ -29,6 +29,37 @@ async def create_guild(
     return guild
 
 
+async def update_guild(
+    session: AsyncSession,
+    guild_id: int,
+    tag: str | None = None,
+    players: int | None = None,
+    wins: int | None = None,
+) -> Guild:
+    """
+    Обновить данные гильдии. Возможно обновление одного и более параметров.
+    Параметры, обновление которых не требуется, можно не указывать
+
+
+    :param session: Сессия базы данных
+    :param guild_id: id гильдии из внешней базы данных
+    :param tag: Новый тег гильдии
+    :param players: Новое количество игроков гильдии
+    :param wins: Количество добавленных побед
+    :return: Объект Гильдия с обновленными данными
+    """
+    guild = await get_guild_by_foreign_id(session=session, guild_id=guild_id)
+    if tag:
+        guild.tag = tag
+    if players:
+        guild.players = players
+    if wins:
+        guild.wins += wins
+    await session.commit()
+    await session.refresh(guild)
+    return guild
+
+
 async def get_guild_by_foreign_id(
     session: AsyncSession,
     guild_id: int,
