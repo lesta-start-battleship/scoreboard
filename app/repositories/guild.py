@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from typing import Sequence
+
+from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
@@ -81,3 +83,23 @@ async def get_guild_by_foreign_id(
     if guild is None:
         raise exception
     return guild
+
+
+async def get_guilds_rating(
+    session: AsyncSession, players: bool = False
+) -> Sequence[Guild]:
+    """
+    Получить рейтинг пользователя на основе заданного параметра.
+    Если ни один параметр не задан, сортировка строится на основе количества побед
+
+    :param session: Сессия базы данных
+    :param players: Если требуется рейтинг на основе количества игроков
+    :return: Последовательность Гильдий, отсортированных по заданному критерию
+    """
+    if players:
+        stmt = select(Guild).order_by(desc(Guild.players))
+    else:
+        stmt = select(Guild).order_by(desc(Guild.wins))
+    result = await session.execute(stmt)
+    guilds = result.scalars().all()
+    return guilds
