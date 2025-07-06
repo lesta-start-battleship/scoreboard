@@ -15,7 +15,7 @@ class WarResult(Base):
     attacker_score: Mapped[int]
     defender_score: Mapped[int]
     war_id: Mapped[int]
-    winner: Mapped[int]
+    winner_id: Mapped[int]
 
     guild: Mapped["Guild"] = relationship("Guild", back_populates="war_results")
 
