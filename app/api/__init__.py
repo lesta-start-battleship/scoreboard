@@ -1,7 +1,7 @@
-from .user import router as user_router
+from . import user
+from . import guild
 
-from fastapi import FastAPI
+from app import app
 
-app = FastAPI()
-
-app.include_router(user_router)
+app.include_router(user.router)
+app.include_router(guild.router)
