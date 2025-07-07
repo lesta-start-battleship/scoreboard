@@ -12,7 +12,9 @@ class GuildSchema(BaseSchema):
     id: UUID = Field(..., description="Unique identifier of the user")
     tag: str = Field(..., description="Tag of the guild")
     players: int = Field(..., description="Number of players in the guild")
+    playes_rating_pos: int = Field(..., description="Guild's position in the players rating")
     wins: int = Field(..., description="Number of wins by the guild")
+    wins_rating_pos: int = Field(..., description="Guild's position in the wins rating")
 
 
 class GuildPaginationResponse(PaginationResponse[GuildSchema]):
