@@ -16,13 +16,17 @@ class GuildSchema:
         id (UUID): Unique identifier of the user
         tag (str): Tag of the guild
         players (int): Number of players in the guild
+        playes_rating_pos (int): Guild's position in the players rating
         wins (int): Number of wins by the guild
+        wins_rating_pos (int): Guild's position in the wins rating
     """
 
     id: UUID
     tag: str
     players: int
+    playes_rating_pos: int
     wins: int
+    wins_rating_pos: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +36,11 @@ class GuildSchema:
 
         players = self.players
 
+        playes_rating_pos = self.playes_rating_pos
+
         wins = self.wins
+
+        wins_rating_pos = self.wins_rating_pos
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -41,7 +49,9 @@ class GuildSchema:
                 "id": id,
                 "tag": tag,
                 "players": players,
+                "playes_rating_pos": playes_rating_pos,
                 "wins": wins,
+                "wins_rating_pos": wins_rating_pos,
             }
         )
 
@@ -56,13 +66,19 @@ class GuildSchema:
 
         players = d.pop("players")
 
+        playes_rating_pos = d.pop("playes_rating_pos")
+
         wins = d.pop("wins")
+
+        wins_rating_pos = d.pop("wins_rating_pos")
 
         guild_schema = cls(
             id=id,
             tag=tag,
             players=players,
+            playes_rating_pos=playes_rating_pos,
             wins=wins,
+            wins_rating_pos=wins_rating_pos,
         )
 
         guild_schema.additional_properties = d

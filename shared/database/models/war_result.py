@@ -1,9 +1,12 @@
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.attributes import Mapped
 from sqlalchemy.sql.schema import ForeignKey
+from typing import TYPE_CHECKING
 
 from shared.database.models.base import Base
-from shared.database.models.guild import Guild
+
+if TYPE_CHECKING:
+    from shared.database.models.guild import Guild
 
 
 class WarResult(Base):
@@ -16,6 +19,6 @@ class WarResult(Base):
     defender_score: Mapped[int]
     war_id: Mapped[int]
     winner_id: Mapped[int]
-    winner_tag = Mapped[str]
+    winner_tag: Mapped[str]
 
     guild: Mapped["Guild"] = relationship("Guild", back_populates="war_results")
