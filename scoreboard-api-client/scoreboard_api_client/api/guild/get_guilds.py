@@ -6,9 +6,9 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.guild_pagination_response import GuildPaginationResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.order_by_type import OrderByType
-from ...models.user_pagination_response import UserPaginationResponse
 from ...types import UNSET, Response, Unset
 
 
@@ -17,10 +17,9 @@ def _get_kwargs(
     limit: Union[Unset, int] = 10,
     page: Union[Unset, int] = 1,
     ids: Union[None, Unset, list[UUID]] = UNSET,
-    name_ilike: Union[None, Unset, str] = UNSET,
-    order_by_gold: Union[None, OrderByType, Unset] = UNSET,
-    order_by_experience: Union[None, OrderByType, Unset] = UNSET,
-    order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    tag_ilike: Union[None, Unset, str] = UNSET,
+    order_by_players: Union[None, OrderByType, Unset] = UNSET,
+    order_by_wins: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
@@ -42,39 +41,30 @@ def _get_kwargs(
         json_ids = ids
     params["ids"] = json_ids
 
-    json_name_ilike: Union[None, Unset, str]
-    if isinstance(name_ilike, Unset):
-        json_name_ilike = UNSET
+    json_tag_ilike: Union[None, Unset, str]
+    if isinstance(tag_ilike, Unset):
+        json_tag_ilike = UNSET
     else:
-        json_name_ilike = name_ilike
-    params["name_ilike"] = json_name_ilike
+        json_tag_ilike = tag_ilike
+    params["tag_ilike"] = json_tag_ilike
 
-    json_order_by_gold: Union[None, Unset, str]
-    if isinstance(order_by_gold, Unset):
-        json_order_by_gold = UNSET
-    elif isinstance(order_by_gold, OrderByType):
-        json_order_by_gold = order_by_gold.value
+    json_order_by_players: Union[None, Unset, str]
+    if isinstance(order_by_players, Unset):
+        json_order_by_players = UNSET
+    elif isinstance(order_by_players, OrderByType):
+        json_order_by_players = order_by_players.value
     else:
-        json_order_by_gold = order_by_gold
-    params["order_by_gold"] = json_order_by_gold
+        json_order_by_players = order_by_players
+    params["order_by_players"] = json_order_by_players
 
-    json_order_by_experience: Union[None, Unset, str]
-    if isinstance(order_by_experience, Unset):
-        json_order_by_experience = UNSET
-    elif isinstance(order_by_experience, OrderByType):
-        json_order_by_experience = order_by_experience.value
+    json_order_by_wins: Union[None, Unset, str]
+    if isinstance(order_by_wins, Unset):
+        json_order_by_wins = UNSET
+    elif isinstance(order_by_wins, OrderByType):
+        json_order_by_wins = order_by_wins.value
     else:
-        json_order_by_experience = order_by_experience
-    params["order_by_experience"] = json_order_by_experience
-
-    json_order_by_rating: Union[None, Unset, str]
-    if isinstance(order_by_rating, Unset):
-        json_order_by_rating = UNSET
-    elif isinstance(order_by_rating, OrderByType):
-        json_order_by_rating = order_by_rating.value
-    else:
-        json_order_by_rating = order_by_rating
-    params["order_by_rating"] = json_order_by_rating
+        json_order_by_wins = order_by_wins
+    params["order_by_wins"] = json_order_by_wins
 
     json_is_deleted: Union[None, Unset, bool]
     if isinstance(is_deleted, Unset):
@@ -87,7 +77,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/users/",
+        "url": "/guilds/",
         "params": params,
     }
 
@@ -96,9 +86,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, UserPaginationResponse]]:
+) -> Optional[Union[GuildPaginationResponse, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = UserPaginationResponse.from_dict(response.json())
+        response_200 = GuildPaginationResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -113,7 +103,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, UserPaginationResponse]]:
+) -> Response[Union[GuildPaginationResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -128,24 +118,22 @@ def sync_detailed(
     limit: Union[Unset, int] = 10,
     page: Union[Unset, int] = 1,
     ids: Union[None, Unset, list[UUID]] = UNSET,
-    name_ilike: Union[None, Unset, str] = UNSET,
-    order_by_gold: Union[None, OrderByType, Unset] = UNSET,
-    order_by_experience: Union[None, OrderByType, Unset] = UNSET,
-    order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    tag_ilike: Union[None, Unset, str] = UNSET,
+    order_by_players: Union[None, OrderByType, Unset] = UNSET,
+    order_by_wins: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
-) -> Response[Union[HTTPValidationError, UserPaginationResponse]]:
-    """Get Users
+) -> Response[Union[GuildPaginationResponse, HTTPValidationError]]:
+    """Get Guilds
 
      Get a paginated list of users.
 
     Args:
         limit (Union[Unset, int]): Limit of items per page Default: 10.
         page (Union[Unset, int]): Page number Default: 1.
-        ids (Union[None, Unset, list[UUID]]): User IDs to filter users by
-        name_ilike (Union[None, Unset, str]): User name
-        order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        ids (Union[None, Unset, list[UUID]]): Guild IDs to filter users by
+        tag_ilike (Union[None, Unset, str]): Guild tag ilike
+        order_by_players (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_wins (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -153,17 +141,16 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, UserPaginationResponse]]
+        Response[Union[GuildPaginationResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
         limit=limit,
         page=page,
         ids=ids,
-        name_ilike=name_ilike,
-        order_by_gold=order_by_gold,
-        order_by_experience=order_by_experience,
-        order_by_rating=order_by_rating,
+        tag_ilike=tag_ilike,
+        order_by_players=order_by_players,
+        order_by_wins=order_by_wins,
         is_deleted=is_deleted,
     )
 
@@ -180,24 +167,22 @@ def sync(
     limit: Union[Unset, int] = 10,
     page: Union[Unset, int] = 1,
     ids: Union[None, Unset, list[UUID]] = UNSET,
-    name_ilike: Union[None, Unset, str] = UNSET,
-    order_by_gold: Union[None, OrderByType, Unset] = UNSET,
-    order_by_experience: Union[None, OrderByType, Unset] = UNSET,
-    order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    tag_ilike: Union[None, Unset, str] = UNSET,
+    order_by_players: Union[None, OrderByType, Unset] = UNSET,
+    order_by_wins: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
-) -> Optional[Union[HTTPValidationError, UserPaginationResponse]]:
-    """Get Users
+) -> Optional[Union[GuildPaginationResponse, HTTPValidationError]]:
+    """Get Guilds
 
      Get a paginated list of users.
 
     Args:
         limit (Union[Unset, int]): Limit of items per page Default: 10.
         page (Union[Unset, int]): Page number Default: 1.
-        ids (Union[None, Unset, list[UUID]]): User IDs to filter users by
-        name_ilike (Union[None, Unset, str]): User name
-        order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        ids (Union[None, Unset, list[UUID]]): Guild IDs to filter users by
+        tag_ilike (Union[None, Unset, str]): Guild tag ilike
+        order_by_players (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_wins (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -205,7 +190,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, UserPaginationResponse]
+        Union[GuildPaginationResponse, HTTPValidationError]
     """
 
     return sync_detailed(
@@ -213,10 +198,9 @@ def sync(
         limit=limit,
         page=page,
         ids=ids,
-        name_ilike=name_ilike,
-        order_by_gold=order_by_gold,
-        order_by_experience=order_by_experience,
-        order_by_rating=order_by_rating,
+        tag_ilike=tag_ilike,
+        order_by_players=order_by_players,
+        order_by_wins=order_by_wins,
         is_deleted=is_deleted,
     ).parsed
 
@@ -227,24 +211,22 @@ async def asyncio_detailed(
     limit: Union[Unset, int] = 10,
     page: Union[Unset, int] = 1,
     ids: Union[None, Unset, list[UUID]] = UNSET,
-    name_ilike: Union[None, Unset, str] = UNSET,
-    order_by_gold: Union[None, OrderByType, Unset] = UNSET,
-    order_by_experience: Union[None, OrderByType, Unset] = UNSET,
-    order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    tag_ilike: Union[None, Unset, str] = UNSET,
+    order_by_players: Union[None, OrderByType, Unset] = UNSET,
+    order_by_wins: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
-) -> Response[Union[HTTPValidationError, UserPaginationResponse]]:
-    """Get Users
+) -> Response[Union[GuildPaginationResponse, HTTPValidationError]]:
+    """Get Guilds
 
      Get a paginated list of users.
 
     Args:
         limit (Union[Unset, int]): Limit of items per page Default: 10.
         page (Union[Unset, int]): Page number Default: 1.
-        ids (Union[None, Unset, list[UUID]]): User IDs to filter users by
-        name_ilike (Union[None, Unset, str]): User name
-        order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        ids (Union[None, Unset, list[UUID]]): Guild IDs to filter users by
+        tag_ilike (Union[None, Unset, str]): Guild tag ilike
+        order_by_players (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_wins (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -252,17 +234,16 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, UserPaginationResponse]]
+        Response[Union[GuildPaginationResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
         limit=limit,
         page=page,
         ids=ids,
-        name_ilike=name_ilike,
-        order_by_gold=order_by_gold,
-        order_by_experience=order_by_experience,
-        order_by_rating=order_by_rating,
+        tag_ilike=tag_ilike,
+        order_by_players=order_by_players,
+        order_by_wins=order_by_wins,
         is_deleted=is_deleted,
     )
 
@@ -277,24 +258,22 @@ async def asyncio(
     limit: Union[Unset, int] = 10,
     page: Union[Unset, int] = 1,
     ids: Union[None, Unset, list[UUID]] = UNSET,
-    name_ilike: Union[None, Unset, str] = UNSET,
-    order_by_gold: Union[None, OrderByType, Unset] = UNSET,
-    order_by_experience: Union[None, OrderByType, Unset] = UNSET,
-    order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    tag_ilike: Union[None, Unset, str] = UNSET,
+    order_by_players: Union[None, OrderByType, Unset] = UNSET,
+    order_by_wins: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
-) -> Optional[Union[HTTPValidationError, UserPaginationResponse]]:
-    """Get Users
+) -> Optional[Union[GuildPaginationResponse, HTTPValidationError]]:
+    """Get Guilds
 
      Get a paginated list of users.
 
     Args:
         limit (Union[Unset, int]): Limit of items per page Default: 10.
         page (Union[Unset, int]): Page number Default: 1.
-        ids (Union[None, Unset, list[UUID]]): User IDs to filter users by
-        name_ilike (Union[None, Unset, str]): User name
-        order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
-        order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        ids (Union[None, Unset, list[UUID]]): Guild IDs to filter users by
+        tag_ilike (Union[None, Unset, str]): Guild tag ilike
+        order_by_players (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_wins (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -302,7 +281,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, UserPaginationResponse]
+        Union[GuildPaginationResponse, HTTPValidationError]
     """
 
     return (
@@ -311,10 +290,9 @@ async def asyncio(
             limit=limit,
             page=page,
             ids=ids,
-            name_ilike=name_ilike,
-            order_by_gold=order_by_gold,
-            order_by_experience=order_by_experience,
-            order_by_rating=order_by_rating,
+            tag_ilike=tag_ilike,
+            order_by_players=order_by_players,
+            order_by_wins=order_by_wins,
             is_deleted=is_deleted,
         )
     ).parsed
