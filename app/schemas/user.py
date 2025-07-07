@@ -18,6 +18,8 @@ class UserSchema(BaseSchema):
     exp_rating_pos: int = Field(..., description="User's position in the experience rating")
     rating: int = Field(..., description="User's rating value")
     rating_rating_pos: int = Field(..., description="User's position in the rating ranking")
+    chests_opened: int = Field(..., description="Number of chests opened by the user")
+    chests_opened_pos: int = Field(..., description="User's position in the chests opened ranking")
 
 
 class UserPaginationResponse(PaginationResponse[UserSchema]):
@@ -33,5 +35,6 @@ class UserFilterRequest(BaseSchema):
     order_by_gold: OrderByType | None = ORDER_BY_FILTER(table_column="gold")
     order_by_experience: OrderByType | None = ORDER_BY_FILTER(table_column="experience")
     order_by_rating: OrderByType | None = ORDER_BY_FILTER(table_column="rating")
+    order_by_chests_opened: OrderByType | None = ORDER_BY_FILTER(table_column="containers")
 
     is_deleted: bool | None = DELETED_INCLUSION_FILTER
