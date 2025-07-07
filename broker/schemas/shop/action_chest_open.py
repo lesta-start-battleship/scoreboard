@@ -3,5 +3,5 @@ from pydantic import BaseModel
 
 class ActionChestOpenDTO(BaseModel):
     user_id: int
-    event: str
+    promo: int
     exp: int
