@@ -3,7 +3,7 @@ from pydantic_core._pydantic_core import ValidationError
 
 from broker.schemas.shop.action_chest_open import ActionChestOpenDTO
 from shared.database.database import async_session
-from shared.repositories.shop_repository import ShopRepository
+from shared.repositories.user import update_user
 
 
 class ShopConsumer:
@@ -36,6 +36,5 @@ class ShopConsumer:
 
     async def handle_action_chest_open(self, user_data: ActionChestOpenDTO):
         async with async_session() as session:
-            shop_repository = ShopRepository(session=session)
             new_user_data = user_data.model_dump()
-            await shop_repository.open_chest(**new_user_data)
+            await update_user(session, **new_user_data)

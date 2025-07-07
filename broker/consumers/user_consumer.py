@@ -6,7 +6,7 @@ from broker.schemas.user.currency_change import CurrencyChangeDTO
 from broker.schemas.user.new_user import NewUserDTO
 from broker.schemas.user.username_change import UsernameChangeDTO
 from shared.database.database import async_session
-from shared.repositories.user_repository import UserRepository
+from shared.repositories.user import create_user, update_user
 
 
 class UserConsumer:
@@ -48,22 +48,19 @@ class UserConsumer:
 
     async def handle_new_user(self, user_data: NewUserDTO):
         async with async_session() as session:
-            user_repository = UserRepository(session=session)
             new_user = user_data.model_dump()
             currency = new_user.pop("currencies", {})
             new_user_flat = {**new_user, **currency}
-            await user_repository.create_user(**new_user_flat)
+            await create_user(session, **new_user_flat)
 
     async def handle_username_change(self, user_data: UsernameChangeDTO):
         async with async_session() as session:
-            user_repository = UserRepository(session=session)
             new_user_data = user_data.model_dump()
-            await user_repository.update_username(**new_user_data)
+            await update_user(session, **new_user_data)
 
     async def handle_currency_change(self, user_data: CurrencyChangeDTO):
         async with async_session() as session:
-            user_repository = UserRepository(session=session)
             new_user_data = user_data.model_dump()
             currency = new_user_data.pop("currencies", {})
             new_user_data_flat = {**new_user_data, **currency}
-            await user_repository.create_user(**new_user_data_flat)
+            await update_user(session, **new_user_data_flat)
