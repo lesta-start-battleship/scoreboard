@@ -21,6 +21,7 @@ def _get_kwargs(
     order_by_gold: Union[None, OrderByType, Unset] = UNSET,
     order_by_experience: Union[None, OrderByType, Unset] = UNSET,
     order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    order_by_chests_opened: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
@@ -75,6 +76,15 @@ def _get_kwargs(
     else:
         json_order_by_rating = order_by_rating
     params["order_by_rating"] = json_order_by_rating
+
+    json_order_by_chests_opened: Union[None, Unset, str]
+    if isinstance(order_by_chests_opened, Unset):
+        json_order_by_chests_opened = UNSET
+    elif isinstance(order_by_chests_opened, OrderByType):
+        json_order_by_chests_opened = order_by_chests_opened.value
+    else:
+        json_order_by_chests_opened = order_by_chests_opened
+    params["order_by_chests_opened"] = json_order_by_chests_opened
 
     json_is_deleted: Union[None, Unset, bool]
     if isinstance(is_deleted, Unset):
@@ -132,6 +142,7 @@ def sync_detailed(
     order_by_gold: Union[None, OrderByType, Unset] = UNSET,
     order_by_experience: Union[None, OrderByType, Unset] = UNSET,
     order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    order_by_chests_opened: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
 ) -> Response[Union[HTTPValidationError, UserPaginationResponse]]:
     """Get Users
@@ -146,6 +157,7 @@ def sync_detailed(
         order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
         order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
         order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_chests_opened (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -164,6 +176,7 @@ def sync_detailed(
         order_by_gold=order_by_gold,
         order_by_experience=order_by_experience,
         order_by_rating=order_by_rating,
+        order_by_chests_opened=order_by_chests_opened,
         is_deleted=is_deleted,
     )
 
@@ -184,6 +197,7 @@ def sync(
     order_by_gold: Union[None, OrderByType, Unset] = UNSET,
     order_by_experience: Union[None, OrderByType, Unset] = UNSET,
     order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    order_by_chests_opened: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
 ) -> Optional[Union[HTTPValidationError, UserPaginationResponse]]:
     """Get Users
@@ -198,6 +212,7 @@ def sync(
         order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
         order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
         order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_chests_opened (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -217,6 +232,7 @@ def sync(
         order_by_gold=order_by_gold,
         order_by_experience=order_by_experience,
         order_by_rating=order_by_rating,
+        order_by_chests_opened=order_by_chests_opened,
         is_deleted=is_deleted,
     ).parsed
 
@@ -231,6 +247,7 @@ async def asyncio_detailed(
     order_by_gold: Union[None, OrderByType, Unset] = UNSET,
     order_by_experience: Union[None, OrderByType, Unset] = UNSET,
     order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    order_by_chests_opened: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
 ) -> Response[Union[HTTPValidationError, UserPaginationResponse]]:
     """Get Users
@@ -245,6 +262,7 @@ async def asyncio_detailed(
         order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
         order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
         order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_chests_opened (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -263,6 +281,7 @@ async def asyncio_detailed(
         order_by_gold=order_by_gold,
         order_by_experience=order_by_experience,
         order_by_rating=order_by_rating,
+        order_by_chests_opened=order_by_chests_opened,
         is_deleted=is_deleted,
     )
 
@@ -281,6 +300,7 @@ async def asyncio(
     order_by_gold: Union[None, OrderByType, Unset] = UNSET,
     order_by_experience: Union[None, OrderByType, Unset] = UNSET,
     order_by_rating: Union[None, OrderByType, Unset] = UNSET,
+    order_by_chests_opened: Union[None, OrderByType, Unset] = UNSET,
     is_deleted: Union[None, Unset, bool] = UNSET,
 ) -> Optional[Union[HTTPValidationError, UserPaginationResponse]]:
     """Get Users
@@ -295,6 +315,7 @@ async def asyncio(
         order_by_gold (Union[None, OrderByType, Unset]): Order by filter.
         order_by_experience (Union[None, OrderByType, Unset]): Order by filter.
         order_by_rating (Union[None, OrderByType, Unset]): Order by filter.
+        order_by_chests_opened (Union[None, OrderByType, Unset]): Order by filter.
         is_deleted (Union[None, Unset, bool]): Object deleted inclusion filter.
 
     Raises:
@@ -315,6 +336,7 @@ async def asyncio(
             order_by_gold=order_by_gold,
             order_by_experience=order_by_experience,
             order_by_rating=order_by_rating,
+            order_by_chests_opened=order_by_chests_opened,
             is_deleted=is_deleted,
         )
     ).parsed

@@ -21,6 +21,8 @@ class UserSchema:
         exp_rating_pos (int): User's position in the experience rating
         rating (int): User's rating value
         rating_rating_pos (int): User's position in the rating ranking
+        chests_opened (int): Number of chests opened by the user
+        chests_opened_pos (int): User's position in the chests opened ranking
     """
 
     id: UUID
@@ -31,6 +33,8 @@ class UserSchema:
     exp_rating_pos: int
     rating: int
     rating_rating_pos: int
+    chests_opened: int
+    chests_opened_pos: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,6 +54,10 @@ class UserSchema:
 
         rating_rating_pos = self.rating_rating_pos
 
+        chests_opened = self.chests_opened
+
+        chests_opened_pos = self.chests_opened_pos
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -62,6 +70,8 @@ class UserSchema:
                 "exp_rating_pos": exp_rating_pos,
                 "rating": rating,
                 "rating_rating_pos": rating_rating_pos,
+                "chests_opened": chests_opened,
+                "chests_opened_pos": chests_opened_pos,
             }
         )
 
@@ -86,6 +96,10 @@ class UserSchema:
 
         rating_rating_pos = d.pop("rating_rating_pos")
 
+        chests_opened = d.pop("chests_opened")
+
+        chests_opened_pos = d.pop("chests_opened_pos")
+
         user_schema = cls(
             id=id,
             name=name,
@@ -95,6 +109,8 @@ class UserSchema:
             exp_rating_pos=exp_rating_pos,
             rating=rating,
             rating_rating_pos=rating_rating_pos,
+            chests_opened=chests_opened,
+            chests_opened_pos=chests_opened_pos,
         )
 
         user_schema.additional_properties = d
