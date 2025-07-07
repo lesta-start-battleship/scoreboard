@@ -5,6 +5,8 @@ from broker.config.preferences import GUILD_CREATE_TOPIC, GUILD_DELETE_TOPIC, GU
 from broker.schemas.guild.guild_create import GuildCreateDTO
 from broker.schemas.guild.guild_delete import GuildDeleteDTO
 from broker.schemas.guild.guild_member_change import GuildMemberChangeDTO
+from shared.database.database import async_session
+from shared.repositories.guild import create_guild, delete_guild, update_guild
 
 
 class GuildConsumer:
@@ -25,16 +27,16 @@ class GuildConsumer:
                 try:
 
                     if self.topic == GUILD_CREATE_TOPIC:
-                        user_data = GuildCreateDTO.model_validate_json(message.value)
-                        pass
+                        data = GuildCreateDTO.model_validate_json(message.value)
+                        await self.handle_new_guild(data)
 
                     elif self.topic == GUILD_DELETE_TOPIC:
-                        user_data = GuildDeleteDTO.model_validate_json(message.value)
-                        pass
+                        data = GuildDeleteDTO.model_validate_json(message.value)
+                        await self.handle_delete_guild(data)
 
                     elif self.topic == GUILD_MEMBER_CHANGE_TOPIC:
-                        user_data = GuildMemberChangeDTO.model_validate_json(message.value)
-                        pass
+                        data = GuildMemberChangeDTO.model_validate_json(message.value)
+                        await self.handle_member_change_guild(data)
 
                     await self.consumer.commit()
 
@@ -43,3 +45,18 @@ class GuildConsumer:
 
         finally:
             await self.consumer.stop()
+
+    async def handle_new_guild(self, data: GuildCreateDTO):
+        async with async_session() as session:
+            new_guild = data.model_dump()
+            await create_guild(session, **new_guild)
+
+    async def handle_delete_guild(self, data: GuildDeleteDTO):
+        async with async_session() as session:
+            data = data.model_dump()
+            await delete_guild(session, **data)
+
+    async def handle_member_change_guild(self, data: GuildMemberChangeDTO):
+        async with async_session() as session:
+            data = data.model_dump()
+            await update_guild(session, **data)
