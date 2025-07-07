@@ -17,6 +17,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "alembic>=1.16.2",
     "openapi-python-client>=0.25.2",
     "pytest>=8.4.1",
 ]
