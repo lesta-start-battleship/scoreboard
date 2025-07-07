@@ -1,6 +1,8 @@
 from typing import Literal
 from uuid import UUID
 from pydantic import BaseModel, Field
+from app.lib.filter import OrderByType
+from app.schemas.bases import BaseSchema
 from app.schemas.pagination import PaginationResponse
 
 
@@ -20,15 +22,15 @@ class UserSchema(BaseModel):
 class UserPaginationResponse(PaginationResponse[UserSchema]):
     """Schema for paginated user data response."""
 
-class UserFilterRequest(BaseModel):
+class UserFilterRequest(BaseSchema):
     """Schema for filtering user data."""
     
     ids: list[UUID] | None = Field(None, description="Chat IDs to filter users by")
 
     name_ilike: str | None = Field(None, description="Filter users by name using case-insensitive partial match")
 
-    order_by_gold: Literal["ASC", "DESC"] | None = Field(None, description="Order users by gold amount")
-    order_by_experience: Literal["ASC", "DESC"] | None = Field(None, description="Order users by experience amount")
-    order_by_rating: Literal["ASC", "DESC"] | None = Field(None, description="Order users by rating value")
+    order_by_gold: OrderByType | None = Field(None, description="Order users by gold amount")
+    order_by_experience: OrderByType | None = Field(None, description="Order users by experience amount")
+    order_by_rating: OrderByType | None = Field(None, description="Order users by rating value")
 
     is_deleted: bool | None = Field(None, description="Filter users by deletion status")
