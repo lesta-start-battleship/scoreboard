@@ -21,7 +21,7 @@ class GuildPaginationResponse(PaginationResponse[GuildSchema]):
 class GuildFilterRequest(BaseSchema):
     """Schema for filtering user data."""
     
-    ids: list[UUID] | None = Field(None, description="Chat IDs to filter guilds by")
+    ids: list[UUID] | None = BaseField(default=None, description="Guild IDs to filter users by", filter_type=FilterType.in_list, table_column="id")
 
     tag_ilike: str | None = BaseField(default=None, description="Guild tag ilike", filter_type=FilterType.ilike, table_column="tag")
     order_by_players: OrderByType | None = ORDER_BY_FILTER(table_column="players")

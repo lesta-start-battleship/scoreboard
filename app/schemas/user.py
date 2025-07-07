@@ -1,3 +1,4 @@
+from email.policy import default
 from uuid import UUID
 from pydantic import Field
 from app.lib.filter import FilterType, OrderByType
@@ -25,9 +26,9 @@ class UserPaginationResponse(PaginationResponse[UserSchema]):
 class UserFilterRequest(BaseSchema):
     """Schema for filtering user data."""
     
-    ids: list[UUID] | None = BaseField(None, description="Chat IDs to filter users by", filter_type=FilterType.in_list, table_column="id")
+    ids: list[UUID] | None = BaseField(default=None, description="User IDs to filter users by", filter_type=FilterType.in_list, table_column="id")
 
-    name_ilike: str | None = BaseField(default=None, description="Group name", filter_type=FilterType.ilike, table_column="name")
+    name_ilike: str | None = BaseField(default=None, description="User name", filter_type=FilterType.ilike, table_column="name")
 
     order_by_gold: OrderByType | None = ORDER_BY_FILTER(table_column="gold")
     order_by_experience: OrderByType | None = ORDER_BY_FILTER(table_column="experience")
