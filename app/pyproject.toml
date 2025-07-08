@@ -1,0 +1,31 @@
+[project]
+name = "app"
+version = "0.1.0"
+description = "Scoreboard FastAPI application"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.14",
+    "uvicorn>=0.35.0",
+    "pydantic>=2.11.7",
+    "pyfa-converter-v2>=2.0.0rc1",
+    "opentelemetry-api>=1.34.1",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.34.1",
+    "opentelemetry-instrumentation-fastapi>=0.55b1",
+    "opentelemetry-instrumentation-sqlalchemy>=0.55b1",
+    "opentelemetry-sdk>=1.34.1",
+    "shared"
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "httpx>=0.27.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[tool.uv.sources]
+shared = { workspace = true }
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
