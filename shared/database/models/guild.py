@@ -12,8 +12,7 @@ if TYPE_CHECKING:
 class Guild(Base):
     __tablename__ = "guild"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    guild_id: Mapped[int]
+    guild_id: Mapped[int] = mapped_column(primary_key=True)
     tag: Mapped[str]
     players: Mapped[int]
     wins: Mapped[int]
