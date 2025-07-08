@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import mapped_column, relationship
@@ -6,6 +5,7 @@ from sqlalchemy.orm.attributes import Mapped
 from sqlalchemy.sql.schema import ForeignKey
 
 from shared.database.models.base import Base
+
 if TYPE_CHECKING:
     from shared.database.models.guild import Guild
 
@@ -25,6 +25,6 @@ class WarResult(Base):
     loser_tag: Mapped[str | None]
     correlation_id: Mapped[int]
 
-    guild: Mapped[Guild] = relationship("Guild", back_populates="war_results")
-    attacker: Mapped[Guild] = relationship("Guild", foreign_keys=[attacker_id])
-    defender: Mapped[Guild] = relationship("Guild", foreign_keys=[defender_id])
+    guild: Mapped["Guild"] = relationship("Guild", back_populates="war_results")
+    attacker: Mapped["Guild"] = relationship("Guild", foreign_keys=[attacker_id])
+    defender: Mapped["Guild"] = relationship("Guild", foreign_keys=[defender_id])

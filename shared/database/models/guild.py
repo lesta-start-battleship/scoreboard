@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import mapped_column, relationship
@@ -19,7 +18,7 @@ class Guild(Base):
     players: Mapped[int]
     wins: Mapped[int]
 
-    war_results: Mapped[list[WarResult]] = relationship(
+    war_results: Mapped[list["WarResult"]] = relationship(
         "WarResult", back_populates="guild"
     )
-    users: Mapped[list[User]] = relationship("User", back_populates="guild")
+    users: Mapped[list["User"]] = relationship("User", back_populates="guild")
