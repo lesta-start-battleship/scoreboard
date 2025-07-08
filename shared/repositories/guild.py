@@ -11,7 +11,6 @@ async def create_guild(
     guild_id: int,
     tag: str,
     players: int = 1,
-    **kwargs,
 ) -> Guild:
     """
     Добавить гильдию в базу данных
@@ -47,13 +46,15 @@ async def update_guild(
 
 
     :param session: Сессия базы данных
-    :param guild_id: id гильдии из внешней базы данных
+    :param guild_id: id гильдии
     :param tag: Новый тег гильдии
     :param players: Новое количество игроков гильдии
     :param wins: Количество добавленных побед
     :return: Объект Гильдия с обновленными данными
     """
-    guild = await get_guild_by_foreign_id(session=session, guild_id=guild_id)
+    guild: Guild | None = await session.get(Guild, guild_id)
+    if guild is None:
+        raise ValueError("Guild were not found")
     if tag:
         guild.tag = tag
     if players:
@@ -62,26 +63,6 @@ async def update_guild(
         guild.wins += wins
     await session.commit()
     await session.refresh(guild)
-    return guild
-
-
-async def get_guild_by_foreign_id(
-    session: AsyncSession,
-    guild_id: int,
-) -> Guild:
-    """
-    Получить гильдию на основе id из внешнего сервиса
-
-    :param session: Сессия базы данных
-    :param guild_id: id гильдии из внешней базы данных
-    :return: Объект Гильдия, извлеченный из базы данных
-    """
-    exception = ValueError("Guild were not found")
-    stmt = select(Guild).where(Guild.guild_id == guild_id)
-    result = await session.execute(stmt)
-    guild = result.scalar_one_or_none()
-    if guild is None:
-        raise exception
     return guild
 
 
@@ -110,10 +91,12 @@ async def delete_guild(session: AsyncSession, guild_id: int):
     Удалить гильдию из базы данных
 
     :param session: Сессия базы данных
-    :param guild_id: id гильдии из внешней базы данных
+    :param guild_id: id гильдии
     :return: True в случае успешного удаления
     """
-    guild = await get_guild_by_foreign_id(session=session, guild_id=guild_id)
+    guild: Guild | None = await session.get(Guild, guild_id)
+    if guild is None:
+        raise ValueError("Guild were not found")
     await session.delete(guild)
     await session.commit()
     return True
