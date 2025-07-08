@@ -14,8 +14,12 @@ class WarResult(Base):
     __tablename__ = "war_result"
 
     war_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
-    attacker_id: Mapped[int] = mapped_column(ForeignKey("guild.guild_id"), nullable=False)
-    defender_id: Mapped[int] = mapped_column(ForeignKey("guild.guild_id"), nullable=False)
+    attacker_id: Mapped[int] = mapped_column(
+        ForeignKey("guild.guild_id"), nullable=False
+    )
+    defender_id: Mapped[int] = mapped_column(
+        ForeignKey("guild.guild_id"), nullable=False
+    )
     attacker_score: Mapped[int]
     defender_score: Mapped[int]
     winner_id: Mapped[int | None]
@@ -24,6 +28,9 @@ class WarResult(Base):
     loser_tag: Mapped[str | None]
     correlation_id: Mapped[int]
 
-    guild: Mapped["Guild"] = relationship("Guild", back_populates="war_results")
-    attacker: Mapped["Guild"] = relationship("Guild", foreign_keys=[attacker_id])
-    defender: Mapped["Guild"] = relationship("Guild", foreign_keys=[defender_id])
+    attacker: Mapped["Guild"] = relationship(
+        "Guild", foreign_keys=[attacker_id], back_populates="war_results_attacker"
+    )
+    defender: Mapped["Guild"] = relationship(
+        "Guild", foreign_keys=[defender_id], back_populates="war_results_defender"
+    )
