@@ -12,6 +12,7 @@ from broker.schemas.match.guild_war_respone import GuildWarResponseDTO
 from broker.schemas.match.random import MatchRandomDTO
 from broker.schemas.match.ranked import MatchRankedDTO
 from shared.database.database import async_session
+from shared.repositories.guild import update_guild
 from shared.repositories.user import update_user
 from shared.repositories.war_result import update_war_result
 
@@ -48,6 +49,9 @@ class CoreConsumer:
                         await self.handle_guild_war_match(data)
                     else:
                         raise ValueError(f"Unknown match type {match_type}")
+
+                    await self.consumer.commit()
+
                 except ValidationError as e:
                     print(f"Ошибка валидации данных: {e}")
 
@@ -58,13 +62,13 @@ class CoreConsumer:
         async with async_session() as session:
             await update_user(
                 session=session,
-                user_id=data.winner_id,
+                user_id=data.winner_match_id,
                 experience=data.experience.winner_gain
             )
 
             await update_user(
                 session=session,
-                user_id=data.loser_id,
+                user_id=data.loser_match_id,
                 experience=data.experience.loser_gain
             )
 
@@ -72,29 +76,41 @@ class CoreConsumer:
         async with async_session() as session:
             await update_user(
                 session=session,
-                user_id=data.winner_id,
+                user_id=data.winner_match_id,
                 experience=data.experience.winner_gain,
                 rating=data.rating.winner_gain
             )
 
             await update_user(
                 session=session,
-                user_id=data.loser_id,
+                user_id=data.loser_match_id,
                 experience=data.experience.loser_gain,
                 rating=data.rating.loser_gain
             )
 
     async def handle_custom_match(self, data: MatchCustomDTO):
-        print(f"Custom match\nWinner {data.winner_id}\nLoser {data.loser_id}\nNo experience gained")
+        print(f"Custom match\nWinner {data.winner_match_id}\nLoser {data.loser_match_id}\nNo experience gained")
 
     async def handle_guild_war_match(self, data: MatchGuildWarDTO):
         async with async_session() as session:
-            war_res = await update_war_result(session, data.guild_war_id)
+            match_data = data.model_dump(include={"war_id", "winner_match_id"})
+            war_res = await update_war_result(session, **match_data)
             attacker_score = war_res.attacker_score
             defender_score = war_res.defender_score
             if attacker_score + defender_score >= 5:
                 winner_war_id = war_res.attacker_id if attacker_score > defender_score else war_res.defender_id
-                war_res = await update_war_result(session, winner_war_id)
+                loser_war_id = war_res.attacker_id if attacker_score < defender_score else war_res.defender_id
+                war_res = await update_war_result(
+                    session=session,
+                    war_id=war_res.war_id,
+                    winner_war_id=winner_war_id,
+                    loser_war_id=loser_war_id
+                )
+                await update_guild(
+                    session=session,
+                    guild_id=winner_war_id,
+                    wins=1
+                )
                 message = GuildWarResponseDTO(
                     id_guild_attacker=war_res.attacker_id,
                     score_attacker=war_res.attacker_score,

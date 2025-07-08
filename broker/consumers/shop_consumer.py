@@ -36,5 +36,4 @@ class ShopConsumer:
 
     async def handle_action_chest_open(self, user_data: ActionChestOpenDTO):
         async with async_session() as session:
-            new_user_data = user_data.model_dump()
-            await update_user(session, **new_user_data)
+            await update_user(session, user_id=user_data.user_id, containers=1, experience=user_data.exp)

@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UsernameChangeDTO(BaseModel):
     user_id: int
-    username: str
+    name: str = Field(..., alias="username")

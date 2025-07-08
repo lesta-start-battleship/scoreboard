@@ -11,6 +11,7 @@ from broker.consumers.guild_consumer import GuildConsumer
 
 setup_broker_telemetry(app_name="scoreboard-guild-worker-broker", app_version="0.1.0")
 
+
 async def main():
     consumer_guild_create = GuildConsumer(KAFKA_SERVER, GUILD_CREATE_TOPIC)
     consumer_guild_delete = GuildConsumer(KAFKA_SERVER, GUILD_DELETE_TOPIC)
