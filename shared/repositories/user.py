@@ -12,6 +12,7 @@ async def create_user(
     user_id: int,
     name: str,
     gold: int,
+    **kwargs,
 ) -> User:
     """
     Добавить пользователя в базу данных
@@ -29,6 +30,7 @@ async def create_user(
         experience=0,
         rating=0,
         containers=0,
+        guild_id=None,
     )
     session.add(user)
     await session.commit()
@@ -44,6 +46,8 @@ async def update_user(
     experience: int | None = None,
     rating: int | None = None,
     containers: int | None = None,
+    guild_id: int | None = None,
+    leaving_guild: bool = False,
 ) -> User:
     """
     Обновить данные пользователя. Возможно обновление одного и более параметров.
@@ -56,6 +60,8 @@ async def update_user(
     :param experience: Количество добавленного опыта
     :param rating: Количество добавленного рейтинга
     :param containers: Количество добавленных контейнеров
+    :param guild_id: id гильдии, которую необходимо добавить пользователю
+    :param leaving_guild: Флаг, сообщающий о том, что пользователю необходимо удалить гильдию
     :return: Пользователь с обновленными данными
     """
     user = await get_user_by_foreign_id(session=session, user_id=user_id)
@@ -69,6 +75,10 @@ async def update_user(
         user.rating += rating
     if containers:
         user.containers += containers
+    if guild_id:
+        user.guild_id = guild_id
+    if leaving_guild:
+        user.guild_id = None
     await session.commit()
     await session.refresh(user)
     return user
