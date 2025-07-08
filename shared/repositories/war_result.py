@@ -129,6 +129,14 @@ async def _get_winner_tag(
 async def _get_attacker_defender_id(
     session: AsyncSession, war_id: int, winner_match_id: int
 ) -> dict[str:int]:
+    """
+    Получить id атакующей, защищающейся, победившей гильдии
+
+    :param session: Сессия базы данных
+    :param war_id: id войны, в рамках которой ведётся счёт
+    :param winner_match_id: id победившего пользователя
+    :return: Словарь с ключами attacker, defender, winner, содержащий id соответствующих им гильдий
+    """
     exception = HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="Winner is not in Guild",
