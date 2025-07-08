@@ -3,7 +3,10 @@
 import re
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Tuple, Type, TypeVar
+
+from sqlalchemy import Select
+from sqlalchemy.orm import DeclarativeMeta
 
 from app.lib.filter import OrderByType
 from app.lib.rattrs import rgetattr
@@ -312,3 +315,46 @@ class OrderBySpecification:
     def __init__(self, field: str, type: OrderByType) -> None:
         self.field = field
         self.type = type
+
+
+def apply_filter_specifications[T](
+    model: Type[T], query: Select, specifications: list[BaseSpecification]
+) -> Select:
+    """Apply filter specifications to a query.
+
+    Args:
+        model (Type[T]): The SQLAlchemy model class.
+        query (Select): The SQLAlchemy Select query.
+        specifications (List[BaseSpecification]): The specifications to apply.
+
+    Returns:
+        Select: The modified query with applied specifications.
+    """
+    for spec in specifications:
+        if isinstance(spec, InListSpecification):
+            query = query.where(getattr(model, spec.field).in_(spec.value))
+        elif isinstance(spec, ILikeSpecification):
+            query = query.where(getattr(model, spec.field).ilike(f"%{spec.value}%"))
+        else:
+            raise ValueError(f"Unsupported specification type: {type(spec)}")
+
+    return query
+
+def apply_order_by_specifications[T](
+    model: type[T],
+    query: Select, specifications: list[OrderBySpecification]
+) -> Select:
+    """Apply order by specifications to a query.
+
+    Args:
+        query (Select): The SQLAlchemy Select query.
+        specifications (List[OrderBySpecification]): The order by specifications to apply.
+
+    Returns:
+        Select: The modified query with applied order by specifications.
+    """
+    for spec in specifications:
+        order = getattr(model, spec.field).asc() if spec.type == OrderByType.ASC else getattr(model, spec.field).desc()
+        query = query.order_by(order)
+
+    return query

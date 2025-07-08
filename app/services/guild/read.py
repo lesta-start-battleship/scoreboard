@@ -1,6 +1,7 @@
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.lib.specifications import apply_filter_specifications, apply_order_by_specifications
 from app.schemas.guild import GuildPaginationResponse, GuildFilterRequest, GuildSchema
 from shared.database.models.guild import Guild
 from app.schemas.pagination import PaginationRequest
@@ -18,29 +19,9 @@ async def get_guilds(
     # Base query
     query = select(Guild, players_rank, wins_rank)
 
-    # Apply filters
-    if filters.ids:
-        query = query.where(Guild.id.in_(filters.ids))
-
-    if filters.tag_ilike:
-        query = query.where(Guild.tag.ilike(f"%{filters.tag_ilike}%"))
-
-    """
-    if filters.is_deleted is not None:
-        if filters.is_deleted:
-            query = query.where(Guild.deleted_at.is_not(None))
-        else:
-            query = query.where(Guild.deleted_at.is_(None))
-    """
-            
-    # Apply ordering
-    if filters.order_by_players:
-        order = Guild.players.asc() if filters.order_by_players == "asc" else Guild.players.desc()
-        query = query.order_by(order)
-
-    if filters.order_by_wins:
-        order = Guild.wins.asc() if filters.order_by_wins == "asc" else Guild.wins.desc()
-        query = query.order_by(order)
+    query = apply_filter_specifications(model=Guild, query=query, specifications=filters.to_specifications())
+    
+    query = apply_order_by_specifications(model=Guild, query=query, specifications=filters.to_order_by_specifications())
 
     # Count total items
     count_query = select(func.count()).select_from(query.subquery())

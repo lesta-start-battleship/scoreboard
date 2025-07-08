@@ -1,6 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.user import UserPaginationResponse
+from app.lib.specifications import ILikeSpecification, InListSpecification, apply_filter_specifications, apply_order_by_specifications
 from app.schemas.pagination import PaginationRequest
 from app.schemas.user import UserFilterRequest, UserSchema
 from shared.database.models.user import User
@@ -25,30 +26,10 @@ async def get_users(
         rating_rank,
         chests_rank
     )
-    
-    # Apply filters
-    if filters.ids:
-        query = query.where(User.id.in_(filters.ids))
 
-    if filters.name_ilike:
-        query = query.where(User.name.ilike(f"%{filters.name_ilike}%"))
+    query = apply_filter_specifications(model=User, query=query, specifications=filters.to_specifications())
 
-    # Apply ordering
-    if filters.order_by_gold:
-        order = User.gold.asc() if filters.order_by_gold == "asc" else User.gold.desc()
-        query = query.order_by(order)
-
-    if filters.order_by_experience:
-        order = User.experience.asc() if filters.order_by_experience == "asc" else User.experience.desc()
-        query = query.order_by(order)
-
-    if filters.order_by_rating:
-        order = User.rating.asc() if filters.order_by_rating == "asc" else User.rating.desc()
-        query = query.order_by(order)
-
-    if filters.order_by_chests_opened:
-        order = User.containers.asc() if filters.order_by_chests_opened == "asc" else User.containers.desc()
-        query = query.order_by(order)
+    query = apply_order_by_specifications(model=User, query=query, specifications=filters.to_order_by_specifications())
 
     # Count total items
     count_query = select(func.count()).select_from(query.subquery())
