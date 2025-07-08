@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.attributes import Mapped
 from sqlalchemy.sql.schema import ForeignKey
@@ -16,6 +18,9 @@ class WarResult(Base):
     defender_score: Mapped[int]
     war_id: Mapped[int]
     winner_id: Mapped[int]
-    winner_tag = Mapped[str]
+    winner_tag: Mapped[str]
+    correlation_id: Mapped[int]
 
-    guild: Mapped["Guild"] = relationship("Guild", back_populates="war_results")
+    guild: Mapped[Guild] = relationship("Guild", back_populates="war_results")
+    attacker: Mapped[Guild] = relationship("Guild", foreign_keys=[attacker_id])
+    defender: Mapped[Guild] = relationship("Guild", foreign_keys=[defender_id])

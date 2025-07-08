@@ -5,9 +5,9 @@ from app.schemas.user import UserFilterRequest, UserPaginationResponse
 from pyfa_converter_v2 import QueryDepends
 from app.services import user as user_service
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/users", response_model=UserPaginationResponse)
+@router.get("/", response_model=UserPaginationResponse)
 async def get_users(
     db: DatabaseDependency,
     pagination: PaginationRequest = QueryDepends(PaginationRequest),
