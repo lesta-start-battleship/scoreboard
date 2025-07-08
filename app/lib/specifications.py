@@ -3,10 +3,9 @@
 import re
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Any, Tuple, Type, TypeVar
+from typing import Any, Type
 
 from sqlalchemy import Select
-from sqlalchemy.orm import DeclarativeMeta
 
 from app.lib.filter import OrderByType
 from app.lib.rattrs import rgetattr
