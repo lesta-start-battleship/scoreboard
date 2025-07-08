@@ -10,7 +10,11 @@ from shared.database.models.user import User
 
 
 async def create_war_result(
-    session: AsyncSession, attacker_id: int, defender_id: int, war_id: int, correlation_id: int
+    session: AsyncSession,
+    attacker_id: int,
+    defender_id: int,
+    war_id: int,
+    correlation_id: int,
 ) -> WarResult:
     """
     Создать новый счётчик войны гильдий, добавив его в базу данных
@@ -45,6 +49,7 @@ async def update_war_result(
     war_id: int,
     winner_match_id: int | None = None,
     winner_war_id: int | None = None,
+    loser_war_id: int | None = None,
 ) -> WarResult:
     """
     Обновить данные счёта о войне гильдий
@@ -53,6 +58,7 @@ async def update_war_result(
     :param war_id: id войны, в рамках которой ведётся счёт
     :param winner_match_id: id победившего пользователя
     :param winner_war_id: id победившей гильдии
+    :param loser_war_id: id проигравшей гильдии
     :return: Объект Результаты войны с обновленными данными
     """
     exception = HTTPException(
@@ -63,15 +69,20 @@ async def update_war_result(
     if war_result.winner_id is not None:
         raise exception
     if winner_match_id:
-        guilds_id = _get_attacker_defender_id(session=session, war_id=war_id, winner_match_id=winner_match_id)
-        if guilds_id['winner'] == guilds_id['attacker']:
+        guilds_id = _get_attacker_defender_id(
+            session=session, war_id=war_id, winner_match_id=winner_match_id
+        )
+        if guilds_id["winner"] == guilds_id["attacker"]:
             war_result.attacker_score += 1
         else:
             war_result.defender_score += 1
     if winner_war_id:
         war_result.winner_id = winner_war_id
-        tag = await _get_guild_tag(session=session, guild_id=winner_war_id)
-        war_result.winner_tag = tag
+        winner_tag = await _get_guild_tag(session=session, guild_id=winner_war_id)
+        war_result.winner_tag = winner_tag
+        war_result.loser_id = loser_war_id
+        loser_tag = await _get_guild_tag(session=session, guild_id=loser_war_id)
+        war_result.loser_tag = loser_tag
     await session.commit()
     await session.refresh(war_result)
     return war_result
