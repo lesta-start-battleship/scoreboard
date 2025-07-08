@@ -6,8 +6,9 @@ from broker.config.preferences import (
     USERNAME_CHANGE_TOPIC,
     CURRENCY_CHANGE_TOPIC,
 )
+from broker.config.telemetry import setup_broker_telemetry
 from broker.consumers.user_consumer import UserConsumer
-
+setup_broker_telemetry(app_name="scoreboard-user-worker-broker", app_version="0.1.0")
 
 async def main():
     consumer_new_user = UserConsumer(KAFKA_SERVER, NEW_USER_TOPIC)

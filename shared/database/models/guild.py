@@ -1,11 +1,13 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.attributes import Mapped
 
 from shared.database.models.base import Base
-from shared.database.models.war_result import WarResult
-from shared.database.models.user import User
+if TYPE_CHECKING:
+    from shared.database.models.war_result import WarResult
+    from shared.database.models.user import User
 
 
 class Guild(Base):

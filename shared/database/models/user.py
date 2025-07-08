@@ -3,9 +3,12 @@ from __future__ import annotations
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.orm.attributes import Mapped
+from typing import TYPE_CHECKING
 
 from shared.database.models.base import Base
-from shared.database.models.guild import Guild
+
+if TYPE_CHECKING:
+    from shared.database.models.guild import Guild
 
 
 class User(Base):
@@ -20,4 +23,4 @@ class User(Base):
     rating: Mapped[int]
     containers: Mapped[int]
 
-    guild: Mapped[Guild | None] = relationship("Guild", back_populates="users")
+    guild: Mapped["Guild | None"] = relationship("Guild", back_populates="users")

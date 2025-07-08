@@ -1,6 +1,8 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Generator, Sequence
 from pydantic import BaseModel, ConfigDict
+
+from app.lib.specifications import BaseSpecification, OrderBySpecification
 
 
 class BaseSchema(BaseModel, ABC):
@@ -14,3 +16,14 @@ class BaseSchema(BaseModel, ABC):
                 continue
             attr = getattr(self, field_name)
             yield field_name, attr
+
+class BaseFilterSchema(BaseSchema, ABC):
+    """Base filter schema for filtering queries."""
+
+    @abstractmethod
+    def to_specifications(self) -> list[BaseSpecification]:
+        """Convert the filter schema to a list of specifications."""
+
+    @abstractmethod
+    def to_order_by_specifications(self) -> list[OrderBySpecification]:
+        """Convert the filter schema to an order by specification."""
