@@ -37,20 +37,18 @@ async def create_war_result(
 
 
 async def update_war_result(
-        session: AsyncSession,
-        war_id: int,
-        attacker_score: int | None = None,
-        defender_score: int | None = None,
-        winner_id: int | None = None,
+    session: AsyncSession,
+    war_id: int,
+    winner_match_id: int | None = None,
+    winner_war_id: int | None = None,
 ) -> WarResult:
     """
     Обновить данные счёта о войне гильдий
 
     :param session: Сессия базы данных
     :param war_id: id войны, в рамках которой ведётся счёт
-    :param attacker_score: Количество добавленных очков атакующей гильдии
-    :param defender_score: Количество добавленных очков защищающейся гильдии
-    :param winner_id: id победившей гильдии
+    :param winner_match_id: id победившего пользователя
+    :param winner_war_id: id победившей гильдии
     :return: Объект Результаты войны с обновленными данными
     """
     exception = HTTPException(
@@ -60,13 +58,15 @@ async def update_war_result(
     war_result = await get_war_result_by_foreign_id(session=session, war_id=war_id)
     if war_result.winner_id is not None:
         raise exception
-    if attacker_score:
-        war_result.attacker_score += attacker_score
-    if defender_score:
-        war_result.defender_score += defender_score
-    if winner_id:
-        war_result.winner_id = winner_id
-        tag = await _get_winner_tag(session=session, winner_id=winner_id)
+    if winner_match_id:
+        guilds_id = _get_attacker_defender_id(session=session, war_id=war_id, winner_match_id=winner_match_id)
+        if guilds_id['winner'] == guilds_id['attacker']:
+            war_result.attacker_score += 1
+        else:
+            war_result.defender_score += 1
+    if winner_war_id:
+        war_result.winner_id = winner_war_id
+        tag = await _get_winner_tag(session=session, winner_id=winner_war_id)
         war_result.winner_tag = tag
     await session.commit()
     await session.refresh(war_result)
