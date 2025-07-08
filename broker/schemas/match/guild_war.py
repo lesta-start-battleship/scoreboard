@@ -1,5 +1,5 @@
 from broker.schemas.match.random import MatchRandomDTO
-
+from pydantic import Field
 
 class MatchGuildWarDTO(MatchRandomDTO):
-    guild_war_id: int
+    war_id: int = Field(..., aslias="guild_war_id")

@@ -1,9 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class NewUserDTO(BaseModel):
     user_id: int
-    username: str
-    email: str
-    role: str
+    name: str = Field(..., alias="username")
     gold: int

@@ -60,8 +60,9 @@ class GuildConsumer:
 
     async def handle_new_guild(self, data: GuildCreateDTO):
         async with async_session() as session:
-            new_guild = data.model_dump()
+            new_guild = data.model_dump(exclude={"user_owner_id"})
             await create_guild(session, **new_guild)
+            await update_user(session, user_id=data.user_owner_id, guild_id=data.guild_id)
 
     async def handle_delete_guild(self, data: GuildDeleteDTO):
         async with async_session() as session:
@@ -70,8 +71,8 @@ class GuildConsumer:
 
     async def handle_member_change_guild(self, data: GuildMemberChangeDTO):
         async with async_session() as session:
-            member_data = data.model_dump()
-            await update_guild(session, **member_data)
+            guild_data = data.model_dump(include={"guild_id", "players"})
+            await update_guild(session, **guild_data)
             await update_user(session, user_id=data.user_id, guild_id=data.guild_id, leaving_guild=bool(data.action))
 
     async def handle_start_guild_war(self, data: GuildWarDTO):
