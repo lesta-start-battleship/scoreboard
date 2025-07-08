@@ -8,7 +8,11 @@ from shared.database.models.guild import Guild
 
 
 async def create_guild(
-        session: AsyncSession, guild_id: int, tag: str, players: int = 1
+    session: AsyncSession,
+    guild_id: int,
+    tag: str,
+    players: int = 1,
+    **kwargs,
 ) -> Guild:
     """
     Добавить гильдию в базу данных
@@ -32,11 +36,11 @@ async def create_guild(
 
 
 async def update_guild(
-        session: AsyncSession,
-        guild_id: int,
-        tag: str | None = None,
-        players: int | None = None,
-        wins: int | None = None,
+    session: AsyncSession,
+    guild_id: int,
+    tag: str | None = None,
+    players: int | None = None,
+    wins: int | None = None,
 ) -> Guild:
     """
     Обновить данные гильдии. Возможно обновление одного и более параметров.
@@ -63,8 +67,8 @@ async def update_guild(
 
 
 async def get_guild_by_foreign_id(
-        session: AsyncSession,
-        guild_id: int,
+    session: AsyncSession,
+    guild_id: int,
 ) -> Guild:
     """
     Получить гильдию на основе id из внешнего сервиса
@@ -86,7 +90,7 @@ async def get_guild_by_foreign_id(
 
 
 async def get_guilds_rating(
-        session: AsyncSession, players: bool = False
+    session: AsyncSession, players: bool = False
 ) -> Sequence[Guild]:
     """
     Получить рейтинг пользователя на основе заданного параметра.

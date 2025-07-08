@@ -12,6 +12,7 @@ async def create_user(
     user_id: int,
     name: str,
     gold: int,
+    **kwargs,
 ) -> User:
     """
     Добавить пользователя в базу данных
