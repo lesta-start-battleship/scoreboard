@@ -4,6 +4,8 @@ services:
     image: jaegertracing/all-in-one:1.6.0
     container_name: jaeger
     restart: always
+    env_file:
+      - .env
     ports:
       - "5775:5775/udp"
       - "6831:6831/udp"
@@ -17,6 +19,8 @@ services:
     image: postgres:15-alpine
     container_name: sb-postgres
     restart: always
+    env_file:
+      - .env
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -40,6 +44,9 @@ services:
       - "8000:8000"
     depends_on:
       - sb-postgres
+      - jaeger
+    env_file:
+      - .env
     environment:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
@@ -54,6 +61,8 @@ services:
       dockerfile: broker/Dockerfile
     container_name: user-worker
     command: python -m broker.workers.user_worker
+    env_file:
+      - .env
     environment:
       - KAFKA_SERVER=${KAFKA_SERVER}
       - NEW_USER_TOPIC=${NEW_USER_TOPIC}
@@ -66,6 +75,7 @@ services:
       - DB_PORT=${DB_PORT}
     depends_on:
       - sb-postgres
+      - jaeger
 
   shop-worker:
     build:
@@ -73,6 +83,8 @@ services:
       dockerfile: broker/Dockerfile
     container_name: shop-worker
     command: python -m broker.workers.shop_worker
+    env_file:
+      - .env
     environment:
       - KAFKA_SERVER=${KAFKA_SERVER}
       - CHEST_OPEN_TOPIC=${CHEST_OPEN_TOPIC}
@@ -83,6 +95,7 @@ services:
       - DB_PORT=${DB_PORT}
     depends_on:
       - sb-postgres
+      - jaeger
 
   guild-worker:
     build:
@@ -90,6 +103,8 @@ services:
       dockerfile: broker/Dockerfile
     container_name: guild-worker
     command: python -m broker.workers.guild_worker
+    env_file:
+      - .env
     environment:
       - KAFKA_SERVER=${KAFKA_SERVER}
       - GUILD_CREATE_TOPIC=${GUILD_CREATE_TOPIC}
@@ -102,6 +117,7 @@ services:
       - DB_PORT=${DB_PORT}
     depends_on:
       - sb-postgres
+      - jaeger
 
 volumes:
   sb-pg:
