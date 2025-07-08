@@ -2,10 +2,12 @@ from fastapi import APIRouter
 from app.dependencies import DatabaseDependency
 from app.schemas.pagination import PaginationRequest
 from app.schemas.user import UserFilterRequest, UserPaginationResponse
+from app.config.telemetry import get_tracer
 from pyfa_converter_v2 import QueryDepends
 from app.services import user as user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
+tracer = get_tracer(__name__)
 
 @router.get("/", response_model=UserPaginationResponse)
 async def get_users(
