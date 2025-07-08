@@ -13,12 +13,11 @@ if TYPE_CHECKING:
 class WarResult(Base):
     __tablename__ = "war_result"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    attacker_id: Mapped[int] = mapped_column(ForeignKey("guild.id"), nullable=False)
-    defender_id: Mapped[int] = mapped_column(ForeignKey("guild.id"), nullable=False)
+    war_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
+    attacker_id: Mapped[int] = mapped_column(ForeignKey("guild.guild_id"), nullable=False)
+    defender_id: Mapped[int] = mapped_column(ForeignKey("guild.guild_id"), nullable=False)
     attacker_score: Mapped[int]
     defender_score: Mapped[int]
-    war_id: Mapped[int]
     winner_id: Mapped[int | None]
     winner_tag: Mapped[str | None]
     loser_id: Mapped[int | None]
