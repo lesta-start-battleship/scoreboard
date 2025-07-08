@@ -30,6 +30,24 @@ services:
       timeout: 3s
       retries: 5
 
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile.migration
+    container_name: migration
+    env_file:
+      - .env
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
+      - DB_PORT=${DB_PORT}
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@sb-postgres:${DB_PORT}/${DB_NAME}
+    depends_on:
+      sb-postgres:
+        condition: service_healthy
+
   scoreboard:
     build:
       context: .
@@ -46,7 +64,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
       - DB_PORT=${DB_PORT}
       - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://jaeger:4317
 
@@ -66,7 +84,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
       - DB_PORT=${DB_PORT}
     depends_on:
       - sb-postgres
@@ -86,7 +104,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
       - DB_PORT=${DB_PORT}
     depends_on:
       - sb-postgres
@@ -108,7 +126,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
       - DB_PORT=${DB_PORT}
     depends_on:
       - sb-postgres
