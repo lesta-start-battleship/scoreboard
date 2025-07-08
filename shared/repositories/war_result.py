@@ -61,7 +61,7 @@ async def update_war_result(
     :return: Объект Результаты войны с обновленными данными
     """
     exception = ValueError("War result has winner, update not allow")
-    war_result = await get_war_result_by_foreign_id(session=session, war_id=war_id)
+    war_result: WarResult | None = await session.get(WarResult, war_id)
     if war_result.winner_id is not None:
         raise exception
     if winner_match_id:
@@ -81,26 +81,6 @@ async def update_war_result(
         war_result.loser_tag = loser_tag
     await session.commit()
     await session.refresh(war_result)
-    return war_result
-
-
-async def get_war_result_by_foreign_id(
-        session: AsyncSession,
-        war_id: int,
-) -> WarResult:
-    """
-    Получить данные о счёте в войне гильдий на основе id из внешнего сервиса
-
-    :param session: Сессия базы данных
-    :param war_id: id войны, в рамках которой ведётся счёт
-    :return: Объект Результаты войны, извлеченный из базы данных
-    """
-    exception = ValueError("War result were not found")
-    stmt = select(WarResult).where(WarResult.war_id == war_id)
-    result = await session.execute(stmt)
-    war_result = result.scalar_one_or_none()
-    if war_result is None:
-        raise exception
     return war_result
 
 
@@ -146,7 +126,7 @@ async def _get_attacker_defender_id(
     :return: Словарь с ключами attacker, defender, winner, содержащий id соответствующих им гильдий
     """
     exception = ValueError("Winner is not in Guild")
-    stmt = select(User.guild_id).where(User.id == winner_match_id)
+    stmt = select(User.guild_id).where(User.user_id == winner_match_id)
     result: Result = await session.execute(stmt)
     guild_id = result.scalar_one_or_none()
 
