@@ -70,7 +70,7 @@ async def update_war_result(
             war_result.defender_score += 1
     if winner_war_id:
         war_result.winner_id = winner_war_id
-        tag = await _get_winner_tag(session=session, winner_id=winner_war_id)
+        tag = await _get_guild_tag(session=session, guild_id=winner_war_id)
         war_result.winner_tag = tag
     await session.commit()
     await session.refresh(war_result)
@@ -113,18 +113,18 @@ async def get_all_war_result(session: AsyncSession) -> Sequence[WarResult]:
     return war_results
 
 
-async def _get_winner_tag(
+async def _get_guild_tag(
     session: AsyncSession,
-    winner_id: int,
+    guild_id: int,
 ) -> str:
     """
     Получить тэг победившей гильдии
 
     :param session: Сессия базы данных
-    :param winner_id: id победившей гильдии
+    :param guild_id: id гильдии, для которой необходим тег
     :return: Строка, содержащая искомый тег
     """
-    stmt = select(Guild.tag).where(Guild.guild_id == winner_id)
+    stmt = select(Guild.tag).where(Guild.guild_id == guild_id)
     result = await session.execute(stmt)
     tag = result.scalar_one_or_none()
     return tag
