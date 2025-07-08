@@ -89,5 +89,23 @@ services:
     depends_on:
       - sb-postgres
 
+  game-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: game-worker
+    command: python -m broker.workers.core_worker
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - GUILD_WAR_END_TOPIC=${GUILD_WAR_END_TOPIC}
+      - CORE_MATCH_END_TOPIC=${CORE_MATCH_END_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    depends_on:
+      - sb-postgres
+
 volumes:
   sb-pg:

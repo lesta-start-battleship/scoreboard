@@ -1,12 +1,16 @@
 from aiokafka import AIOKafkaConsumer
 from pydantic_core._pydantic_core import ValidationError
 
-from broker.config.preferences import GUILD_CREATE_TOPIC, GUILD_DELETE_TOPIC, GUILD_MEMBER_CHANGE_TOPIC
+from broker.config.preferences import GUILD_CREATE_TOPIC, GUILD_DELETE_TOPIC, GUILD_MEMBER_CHANGE_TOPIC, \
+    GUILD_START_GUILD_WAR_TOPIC
 from broker.schemas.guild.guild_create import GuildCreateDTO
 from broker.schemas.guild.guild_delete import GuildDeleteDTO
 from broker.schemas.guild.guild_member_change import GuildMemberChangeDTO
+from broker.schemas.guild.guild_war import GuildWarDTO
 from shared.database.database import async_session
 from shared.repositories.guild import create_guild, delete_guild, update_guild
+from shared.repositories.user import update_user
+from shared.repositories.war_result import create_war_result
 
 
 class GuildConsumer:
@@ -38,6 +42,10 @@ class GuildConsumer:
                         data = GuildMemberChangeDTO.model_validate_json(message.value)
                         await self.handle_member_change_guild(data)
 
+                    elif self.topic == GUILD_START_GUILD_WAR_TOPIC:
+                        data = GuildWarDTO.model_validate_json(message.value)
+                        await self.handle_start_guild_war(data)
+
                     await self.consumer.commit()
 
                 except ValidationError as e:
@@ -60,3 +68,9 @@ class GuildConsumer:
         async with async_session() as session:
             data = data.model_dump()
             await update_guild(session, **data)
+            await update_user(session, guild_id, user_id)
+
+    async def handle_start_guild_war(self, data: GuildWarDTO):
+        async with async_session() as session:
+            data = data.model_dump()
+            await create_war_result(session, **data)
