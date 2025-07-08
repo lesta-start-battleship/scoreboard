@@ -10,7 +10,7 @@ from shared.database.models.user import User
 
 
 async def create_war_result(
-    session: AsyncSession, attacker_id: int, defender_id: int, war_id: int
+    session: AsyncSession, attacker_id: int, defender_id: int, war_id: int, correlation_id: int
 ) -> WarResult:
     """
     Создать новый счётчик войны гильдий, добавив его в базу данных
@@ -19,6 +19,7 @@ async def create_war_result(
     :param attacker_id: id атакующей гильдии
     :param defender_id: id защищающейся гильдии
     :param war_id: id войны, в рамках которой ведётся счёт
+    :param correlation_id: uuid сообщения в kafka
     :return: Созданный и добавленный в базу данных счётчик войны гильдий
     """
     war_result = WarResult(
@@ -29,6 +30,7 @@ async def create_war_result(
         defender_score=0,
         winner_id=None,
         winner_tag=None,
+        correlation_id=correlation_id,
     )
     session.add(war_result)
     await session.commit()
