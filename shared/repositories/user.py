@@ -29,6 +29,7 @@ async def create_user(
         experience=0,
         rating=0,
         containers=0,
+        guild_id=None,
     )
     session.add(user)
     await session.commit()
