@@ -22,3 +22,5 @@ class WarResult(Base):
     winner_tag: Mapped[str]
 
     guild: Mapped["Guild"] = relationship("Guild", back_populates="war_results")
+    attacker: Mapped["Guild"] = relationship("Guild", foreign_keys=[attacker_id])
+    defender: Mapped["Guild"] = relationship("Guild", foreign_keys=[defender_id])
