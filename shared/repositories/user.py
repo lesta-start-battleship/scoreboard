@@ -2,16 +2,16 @@ from typing import Sequence
 
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status
 
 from shared.database.models.user import User
 
 
 async def create_user(
-    session: AsyncSession,
-    user_id: int,
-    name: str,
-    gold: int,
+        session: AsyncSession,
+        user_id: int,
+        name: str,
+        gold: int,
+    **kwargs,
 ) -> User:
     """
     Добавить пользователя в базу данных
@@ -29,6 +29,7 @@ async def create_user(
         experience=0,
         rating=0,
         containers=0,
+        guild_id=None,
     )
     session.add(user)
     await session.commit()
@@ -37,13 +38,15 @@ async def create_user(
 
 
 async def update_user(
-    session: AsyncSession,
-    user_id: int,
-    name: str | None = None,
-    gold: int | None = None,
-    experience: int | None = None,
-    rating: int | None = None,
-    containers: int | None = None,
+        session: AsyncSession,
+        user_id: int,
+        name: str | None = None,
+        gold: int | None = None,
+        experience: int | None = None,
+        rating: int | None = None,
+        containers: int | None = None,
+        guild_id: int | None = None,
+        leaving_guild: bool = False,
 ) -> User:
     """
     Обновить данные пользователя. Возможно обновление одного и более параметров.
@@ -56,6 +59,8 @@ async def update_user(
     :param experience: Количество добавленного опыта
     :param rating: Количество добавленного рейтинга
     :param containers: Количество добавленных контейнеров
+    :param guild_id: id гильдии, которую необходимо добавить пользователю
+    :param leaving_guild: Флаг, сообщающий о том, что пользователю необходимо удалить гильдию
     :return: Пользователь с обновленными данными
     """
     user = await get_user_by_foreign_id(session=session, user_id=user_id)
@@ -69,14 +74,18 @@ async def update_user(
         user.rating += rating
     if containers:
         user.containers += containers
+    if guild_id:
+        user.guild_id = guild_id
+    if leaving_guild:
+        user.guild_id = None
     await session.commit()
     await session.refresh(user)
     return user
 
 
 async def get_user_by_foreign_id(
-    session: AsyncSession,
-    user_id: int,
+        session: AsyncSession,
+        user_id: int,
 ) -> User:
     """
     Получить Пользователя на основе id из внешнего сервиса
@@ -85,10 +94,7 @@ async def get_user_by_foreign_id(
     :param user_id: id пользователя из внешней базы данных
     :return: Пользователь, извлеченный из базы данных
     """
-    exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="User not found",
-    )
+    exception = ValueError("User were not found")
     stmt = select(User).where(User.user_id == user_id)
     result = await session.execute(stmt)
     user = result.scalar_one_or_none()
@@ -98,10 +104,10 @@ async def get_user_by_foreign_id(
 
 
 async def get_users_rating(
-    session: AsyncSession,
-    gold: bool = False,
-    experience: bool = False,
-    containers: bool = False,
+        session: AsyncSession,
+        gold: bool = False,
+        experience: bool = False,
+        containers: bool = False,
 ) -> Sequence[User]:
     """
     Получить рейтинг пользователей на основе заданного параметра.

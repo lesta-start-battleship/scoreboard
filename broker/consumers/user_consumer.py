@@ -1,12 +1,15 @@
 from aiokafka import AIOKafkaConsumer
 from pydantic_core._pydantic_core import ValidationError
 
+from broker.config.logger import setup_logger
 from broker.config.preferences import NEW_USER_TOPIC, USERNAME_CHANGE_TOPIC, CURRENCY_CHANGE_TOPIC
 from broker.schemas.user.currency_change import CurrencyChangeDTO
 from broker.schemas.user.new_user import NewUserDTO
 from broker.schemas.user.username_change import UsernameChangeDTO
 from shared.database.database import async_session
 from shared.repositories.user import create_user, update_user
+
+logger = setup_logger("user_consumer")
 
 
 class UserConsumer:
@@ -21,6 +24,7 @@ class UserConsumer:
 
     async def consume(self):
         await self.consumer.start()
+        logger.info(f"UserConsumer started consume topic {self.topic}")
         try:
 
             async for message in self.consumer:
@@ -41,17 +45,16 @@ class UserConsumer:
                     await self.consumer.commit()
 
                 except ValidationError as e:
-                    print(f"Ошибка валидации данных: {e}")
+                    logger.error(f"Ошибка валидации данных: {e}")
 
         finally:
             await self.consumer.stop()
+            logger.info("UserConsumer stopped")
 
     async def handle_new_user(self, user_data: NewUserDTO):
         async with async_session() as session:
             new_user = user_data.model_dump()
-            currency = new_user.pop("currencies", {})
-            new_user_flat = {**new_user, **currency}
-            await create_user(session, **new_user_flat)
+            await create_user(session, **new_user)
 
     async def handle_username_change(self, user_data: UsernameChangeDTO):
         async with async_session() as session:
@@ -61,6 +64,4 @@ class UserConsumer:
     async def handle_currency_change(self, user_data: CurrencyChangeDTO):
         async with async_session() as session:
             new_user_data = user_data.model_dump()
-            currency = new_user_data.pop("currencies", {})
-            new_user_data_flat = {**new_user_data, **currency}
-            await update_user(session, **new_user_data_flat)
+            await update_user(session, **new_user_data)
