@@ -1,14 +1,26 @@
 FROM python:3.12-slim
 
-WORKDIR /app
-COPY broker/requirements.txt .
+# Set working directory
+WORKDIR /workspace
 
-RUN pip install -r requirements.txt
+# Copy workspace configuration
+COPY pyproject.toml uv.lock ./
 
-COPY shared ./shared
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-COPY broker ./broker
+ENV UV_LINK_MODE=copy
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync
 
-ENV PYTHONPATH=/app
+# Copy shared package first (dependency for app)
+COPY shared/ shared/
 
-LABEL authors="churakovra"
+# Copy app package
+COPY broker/ broker/
+
+# Install dependencies for app project
+RUN uv sync --project broker --no-dev
+
+# Run the app
+CMD ["python", "-c", "print('Write custom startup logic in compose')"]

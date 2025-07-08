@@ -38,8 +38,8 @@ services:
   scoreboard:
     build:
       context: .
+      dockerfile: app/Dockerfile
     container_name: scoreboard
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
     depends_on:
@@ -60,7 +60,7 @@ services:
       context: .
       dockerfile: broker/Dockerfile
     container_name: user-worker
-    command: python -m broker.workers.user_worker
+    command: uv run -m broker.workers.user_worker
     env_file:
       - .env
     environment:
@@ -82,7 +82,7 @@ services:
       context: .
       dockerfile: broker/Dockerfile
     container_name: shop-worker
-    command: python -m broker.workers.shop_worker
+    command: uv run -m broker.workers.shop_worker
     env_file:
       - .env
     environment:
@@ -102,7 +102,7 @@ services:
       context: .
       dockerfile: broker/Dockerfile
     container_name: guild-worker
-    command: python -m broker.workers.guild_worker
+    command: uv run -m broker.workers.guild_worker
     env_file:
       - .env
     environment:
@@ -124,7 +124,7 @@ services:
       context: .
       dockerfile: broker/Dockerfile
     container_name: game-worker
-    command: python -m broker.workers.core_worker
+    command: uv run -m broker.workers.core_worker
     environment:
       - KAFKA_SERVER=${KAFKA_SERVER}
       - GUILD_WAR_END_TOPIC=${GUILD_WAR_END_TOPIC}

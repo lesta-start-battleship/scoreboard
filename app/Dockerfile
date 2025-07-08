@@ -1,13 +1,17 @@
 FROM python:3.12-slim
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
 # Set working directory
 WORKDIR /workspace
 
 # Copy workspace configuration
 COPY pyproject.toml uv.lock ./
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+ENV UV_LINK_MODE=copy
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync
 
 # Copy shared package first (dependency for app)
 COPY shared/ shared/
