@@ -19,6 +19,7 @@ class WarResult(Base):
     war_id: Mapped[int]
     winner_id: Mapped[int]
     winner_tag: Mapped[str]
+    correlation_id: Mapped[int]
 
     guild: Mapped[Guild] = relationship("Guild", back_populates="war_results")
     attacker: Mapped[Guild] = relationship("Guild", foreign_keys=[attacker_id])
