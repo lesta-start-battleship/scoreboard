@@ -8,7 +8,7 @@ from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION
 import os
 
-from app.config.preferences import OTEL_EXPORTER_OTLP_ENDPOINT
+from shared.config.preferences import OTEL_EXPORTER_OTLP_ENDPOINT
 
 _logger = __import__('logging').getLogger(__name__)
 
