@@ -1,15 +1,16 @@
 from typing import Sequence
 
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, or_, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.database.models.guild import Guild
 from shared.database.models.war_result import WarResult
+from shared.database.models.user import User
 
 
 async def create_war_result(
-        session: AsyncSession, attacker_id: int, defender_id: int, war_id: int
+    session: AsyncSession, attacker_id: int, defender_id: int, war_id: int
 ) -> WarResult:
     """
     Создать новый счётчик войны гильдий, добавив его в базу данных
@@ -73,8 +74,8 @@ async def update_war_result(
 
 
 async def get_war_result_by_foreign_id(
-        session: AsyncSession,
-        war_id: int,
+    session: AsyncSession,
+    war_id: int,
 ) -> WarResult:
     """
     Получить данные о счёте в войне гильдий на основе id из внешнего сервиса
@@ -109,8 +110,8 @@ async def get_all_war_result(session: AsyncSession) -> Sequence[WarResult]:
 
 
 async def _get_winner_tag(
-        session: AsyncSession,
-        winner_id: int,
+    session: AsyncSession,
+    winner_id: int,
 ) -> str:
     """
     Получить тэг победившей гильдии
@@ -123,3 +124,31 @@ async def _get_winner_tag(
     result = await session.execute(stmt)
     tag = result.scalar_one_or_none()
     return tag
+
+
+async def _get_attacker_defender_id(
+    session: AsyncSession, war_id: int, winner_match_id: int
+) -> dict[str:int]:
+    exception = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Winner is not in Guild",
+    )
+    stmt = select(User.guild_id).where(User.id == winner_match_id)
+    result: Result = await session.execute(stmt)
+    guild_id = result.scalar_one_or_none()
+
+    if guild_id is None:
+        raise exception
+
+    stmt = select(WarResult.attacker_id, WarResult.defender_id).where(
+        WarResult.war_id == war_id,
+        or_(WarResult.attacker_id == guild_id, WarResult.defender_id == guild_id),
+    )
+    result: Result = await session.execute(stmt)
+    attacker_defender = result.scalar_one_or_none()
+    answer = {
+        "attacker": attacker_defender[0],
+        "defender": attacker_defender[1],
+        "winner": guild_id,
+    }
+    return answer
