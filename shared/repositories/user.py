@@ -11,7 +11,6 @@ async def create_user(
         user_id: int,
         name: str,
         gold: int,
-    **kwargs,
 ) -> User:
     """
     Добавить пользователя в базу данных
@@ -53,7 +52,7 @@ async def update_user(
     Параметры, обновление которых не требуется, можно не указывать
 
     :param session: Сессия базы данных
-    :param user_id: id пользователя из внешней базы данных
+    :param user_id: id пользователя
     :param name: Новый никнейм пользователя
     :param gold: Новый баланс золота пользователя
     :param experience: Количество добавленного опыта
@@ -63,7 +62,7 @@ async def update_user(
     :param leaving_guild: Флаг, сообщающий о том, что пользователю необходимо удалить гильдию
     :return: Пользователь с обновленными данными
     """
-    user = await get_user_by_foreign_id(session=session, user_id=user_id)
+    user: User | None = await session.get(User, user_id)
     if name:
         user.name = name
     if gold:
@@ -80,26 +79,6 @@ async def update_user(
         user.guild_id = None
     await session.commit()
     await session.refresh(user)
-    return user
-
-
-async def get_user_by_foreign_id(
-        session: AsyncSession,
-        user_id: int,
-) -> User:
-    """
-    Получить Пользователя на основе id из внешнего сервиса
-
-    :param session: Сессия базы данных
-    :param user_id: id пользователя из внешней базы данных
-    :return: Пользователь, извлеченный из базы данных
-    """
-    exception = ValueError("User were not found")
-    stmt = select(User).where(User.user_id == user_id)
-    result = await session.execute(stmt)
-    user = result.scalar_one_or_none()
-    if user is None:
-        raise exception
     return user
 
 

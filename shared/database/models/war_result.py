@@ -13,18 +13,24 @@ if TYPE_CHECKING:
 class WarResult(Base):
     __tablename__ = "war_result"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    attacker_id: Mapped[int] = mapped_column(ForeignKey("guild.id"), nullable=False)
-    defender_id: Mapped[int] = mapped_column(ForeignKey("guild.id"), nullable=False)
+    war_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
+    attacker_id: Mapped[int] = mapped_column(
+        ForeignKey("guild.guild_id"), nullable=False
+    )
+    defender_id: Mapped[int] = mapped_column(
+        ForeignKey("guild.guild_id"), nullable=False
+    )
     attacker_score: Mapped[int]
     defender_score: Mapped[int]
-    war_id: Mapped[int]
     winner_id: Mapped[int | None]
     winner_tag: Mapped[str | None]
     loser_id: Mapped[int | None]
     loser_tag: Mapped[str | None]
-    correlation_id: Mapped[int]
+    correlation_id: Mapped[str]
 
-    guild: Mapped["Guild"] = relationship("Guild", back_populates="war_results")
-    attacker: Mapped["Guild"] = relationship("Guild", foreign_keys=[attacker_id])
-    defender: Mapped["Guild"] = relationship("Guild", foreign_keys=[defender_id])
+    attacker: Mapped["Guild"] = relationship(
+        "Guild", foreign_keys=[attacker_id], back_populates="war_results_attacker"
+    )
+    defender: Mapped["Guild"] = relationship(
+        "Guild", foreign_keys=[defender_id], back_populates="war_results_defender"
+    )
