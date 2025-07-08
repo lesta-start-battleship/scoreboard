@@ -30,6 +30,8 @@ async def create_war_result(
         defender_score=0,
         winner_id=None,
         winner_tag=None,
+        loser_id=None,
+        loser_tag=None,
         correlation_id=correlation_id,
     )
     session.add(war_result)
