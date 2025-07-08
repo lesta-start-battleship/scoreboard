@@ -1,8 +1,12 @@
 from aiokafka import AIOKafkaConsumer
 from pydantic_core._pydantic_core import ValidationError
 
-from broker.config.preferences import GUILD_CREATE_TOPIC, GUILD_DELETE_TOPIC, GUILD_MEMBER_CHANGE_TOPIC, \
+from broker.config.preferences import (
+    GUILD_CREATE_TOPIC,
+    GUILD_DELETE_TOPIC,
+    GUILD_MEMBER_CHANGE_TOPIC,
     GUILD_START_GUILD_WAR_TOPIC
+)
 from broker.schemas.guild.guild_create import GuildCreateDTO
 from broker.schemas.guild.guild_delete import GuildDeleteDTO
 from broker.schemas.guild.guild_member_change import GuildMemberChangeDTO
@@ -66,9 +70,9 @@ class GuildConsumer:
 
     async def handle_member_change_guild(self, data: GuildMemberChangeDTO):
         async with async_session() as session:
-            data = data.model_dump()
-            await update_guild(session, **data)
-            await update_user(session, guild_id, user_id)
+            member_data = data.model_dump()
+            await update_guild(session, **member_data)
+            await update_user(session, user_id=data.user_id, guild_id=data.guild_id, leaving_guild=bool(data.action))
 
     async def handle_start_guild_war(self, data: GuildWarDTO):
         async with async_session() as session:

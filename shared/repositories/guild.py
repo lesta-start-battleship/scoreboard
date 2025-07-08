@@ -1,6 +1,5 @@
 from typing import Sequence
 
-from fastapi import HTTPException, status
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -77,10 +76,7 @@ async def get_guild_by_foreign_id(
     :param guild_id: id гильдии из внешней базы данных
     :return: Объект Гильдия, извлеченный из базы данных
     """
-    exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Guild not found",
-    )
+    exception = ValueError("Guild were not found")
     stmt = select(Guild).where(Guild.guild_id == guild_id)
     result = await session.execute(stmt)
     guild = result.scalar_one_or_none()

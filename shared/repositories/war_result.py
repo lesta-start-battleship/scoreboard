@@ -1,12 +1,11 @@
 from typing import Sequence
 
-from fastapi import HTTPException, status
 from sqlalchemy import select, or_, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.database.models.guild import Guild
-from shared.database.models.war_result import WarResult
 from shared.database.models.user import User
+from shared.database.models.war_result import WarResult
 
 
 async def create_war_result(
@@ -61,10 +60,7 @@ async def update_war_result(
     :param loser_war_id: id проигравшей гильдии
     :return: Объект Результаты войны с обновленными данными
     """
-    exception = HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="War result has winner, update not allow",
-    )
+    exception = ValueError("War result has winner, update not allow")
     war_result = await get_war_result_by_foreign_id(session=session, war_id=war_id)
     if war_result.winner_id is not None:
         raise exception
@@ -89,8 +85,8 @@ async def update_war_result(
 
 
 async def get_war_result_by_foreign_id(
-    session: AsyncSession,
-    war_id: int,
+        session: AsyncSession,
+        war_id: int,
 ) -> WarResult:
     """
     Получить данные о счёте в войне гильдий на основе id из внешнего сервиса
@@ -99,10 +95,7 @@ async def get_war_result_by_foreign_id(
     :param war_id: id войны, в рамках которой ведётся счёт
     :return: Объект Результаты войны, извлеченный из базы данных
     """
-    exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="War result not found",
-    )
+    exception = ValueError("War result were not found")
     stmt = select(WarResult).where(WarResult.war_id == war_id)
     result = await session.execute(stmt)
     war_result = result.scalar_one_or_none()
@@ -125,8 +118,8 @@ async def get_all_war_result(session: AsyncSession) -> Sequence[WarResult]:
 
 
 async def _get_guild_tag(
-    session: AsyncSession,
-    guild_id: int,
+        session: AsyncSession,
+        guild_id: int,
 ) -> str:
     """
     Получить тэг победившей гильдии
@@ -142,7 +135,7 @@ async def _get_guild_tag(
 
 
 async def _get_attacker_defender_id(
-    session: AsyncSession, war_id: int, winner_match_id: int
+        session: AsyncSession, war_id: int, winner_match_id: int
 ) -> dict[str:int]:
     """
     Получить id атакующей, защищающейся, победившей гильдии
@@ -152,10 +145,7 @@ async def _get_attacker_defender_id(
     :param winner_match_id: id победившего пользователя
     :return: Словарь с ключами attacker, defender, winner, содержащий id соответствующих им гильдий
     """
-    exception = HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Winner is not in Guild",
-    )
+    exception = ValueError("Winner is not in Guild")
     stmt = select(User.guild_id).where(User.id == winner_match_id)
     result: Result = await session.execute(stmt)
     guild_id = result.scalar_one_or_none()

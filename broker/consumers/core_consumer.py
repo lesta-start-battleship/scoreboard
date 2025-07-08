@@ -5,7 +5,7 @@ from pydantic_core import ValidationError
 
 from broker.config.preferences import GUILD_WAR_END_TOPIC
 from broker.enums.match import MatchType as mt
-from broker.producers.guild_war_produser import send_guild_war_end_message
+from broker.producers.guild_war_produser import GuildWarProducer
 from broker.schemas.match.custom import MatchCustomDTO
 from broker.schemas.match.guild_war import MatchGuildWarDTO
 from broker.schemas.match.guild_war_respone import GuildWarResponseDTO
@@ -17,7 +17,7 @@ from shared.repositories.war_result import update_war_result
 
 
 class CoreConsumer:
-    def __init__(self, kafka_servers: str, topic: str):
+    def __init__(self, kafka_servers: str, topic: str, producer: GuildWarProducer):
         self.kafka_servers = kafka_servers
         self.topic = topic
         self.consumer = AIOKafkaConsumer(
@@ -25,6 +25,7 @@ class CoreConsumer:
             bootstrap_servers=kafka_servers,
             group_id="scoreboard.core.consumer"
         )
+        self.producer = producer
 
     async def consume(self):
         await self.consumer.start()
@@ -100,6 +101,7 @@ class CoreConsumer:
                     id_guild_defender=war_res.defender_id,
                     score_defender=war_res.defender_score,
                     id_winner=war_res.winner_id,
-                    id_guild_war=war_res.war_id
+                    id_guild_war=war_res.war_id,
+                    correlation_id=war_res.correlation_id
                 )
-                await send_guild_war_end_message(GUILD_WAR_END_TOPIC, message)
+                await self.producer.send_guild_war_end_message(GUILD_WAR_END_TOPIC, message)

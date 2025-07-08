@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -8,3 +10,4 @@ class GuildWarResponseDTO(BaseModel):
     score_defender: int
     id_winner: int
     id_guild_war: int
+    correlation_id: UUID

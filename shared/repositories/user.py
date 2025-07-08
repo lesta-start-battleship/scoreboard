@@ -2,16 +2,15 @@ from typing import Sequence
 
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status
 
 from shared.database.models.user import User
 
 
 async def create_user(
-    session: AsyncSession,
-    user_id: int,
-    name: str,
-    gold: int,
+        session: AsyncSession,
+        user_id: int,
+        name: str,
+        gold: int,
     **kwargs,
 ) -> User:
     """
@@ -39,15 +38,15 @@ async def create_user(
 
 
 async def update_user(
-    session: AsyncSession,
-    user_id: int,
-    name: str | None = None,
-    gold: int | None = None,
-    experience: int | None = None,
-    rating: int | None = None,
-    containers: int | None = None,
-    guild_id: int | None = None,
-    leaving_guild: bool = False,
+        session: AsyncSession,
+        user_id: int,
+        name: str | None = None,
+        gold: int | None = None,
+        experience: int | None = None,
+        rating: int | None = None,
+        containers: int | None = None,
+        guild_id: int | None = None,
+        leaving_guild: bool = False,
 ) -> User:
     """
     Обновить данные пользователя. Возможно обновление одного и более параметров.
@@ -85,8 +84,8 @@ async def update_user(
 
 
 async def get_user_by_foreign_id(
-    session: AsyncSession,
-    user_id: int,
+        session: AsyncSession,
+        user_id: int,
 ) -> User:
     """
     Получить Пользователя на основе id из внешнего сервиса
@@ -95,10 +94,7 @@ async def get_user_by_foreign_id(
     :param user_id: id пользователя из внешней базы данных
     :return: Пользователь, извлеченный из базы данных
     """
-    exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="User not found",
-    )
+    exception = ValueError("User were not found")
     stmt = select(User).where(User.user_id == user_id)
     result = await session.execute(stmt)
     user = result.scalar_one_or_none()
@@ -108,10 +104,10 @@ async def get_user_by_foreign_id(
 
 
 async def get_users_rating(
-    session: AsyncSession,
-    gold: bool = False,
-    experience: bool = False,
-    containers: bool = False,
+        session: AsyncSession,
+        gold: bool = False,
+        experience: bool = False,
+        containers: bool = False,
 ) -> Sequence[User]:
     """
     Получить рейтинг пользователей на основе заданного параметра.

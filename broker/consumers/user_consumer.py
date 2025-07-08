@@ -1,12 +1,15 @@
 from aiokafka import AIOKafkaConsumer
 from pydantic_core._pydantic_core import ValidationError
 
+from broker.config.logger import setup_logger
 from broker.config.preferences import NEW_USER_TOPIC, USERNAME_CHANGE_TOPIC, CURRENCY_CHANGE_TOPIC
 from broker.schemas.user.currency_change import CurrencyChangeDTO
 from broker.schemas.user.new_user import NewUserDTO
 from broker.schemas.user.username_change import UsernameChangeDTO
 from shared.database.database import async_session
 from shared.repositories.user import create_user, update_user
+
+logger = setup_logger("user_consumer")
 
 
 class UserConsumer:
@@ -21,6 +24,7 @@ class UserConsumer:
 
     async def consume(self):
         await self.consumer.start()
+        logger.info(f"UserConsumer started consume topic {self.topic}")
         try:
 
             async for message in self.consumer:
@@ -41,10 +45,11 @@ class UserConsumer:
                     await self.consumer.commit()
 
                 except ValidationError as e:
-                    print(f"Ошибка валидации данных: {e}")
+                    logger.error(f"Ошибка валидации данных: {e}")
 
         finally:
             await self.consumer.stop()
+            logger.info("UserConsumer stopped")
 
     async def handle_new_user(self, user_data: NewUserDTO):
         async with async_session() as session:
