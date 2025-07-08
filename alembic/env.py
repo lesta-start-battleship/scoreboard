@@ -7,10 +7,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-import shared
-import shared.database
-import shared.database.models
-import shared.database.models.base
+from shared.database.database import DATABASE_URL
+from shared.database.models.base import Base
+from shared.database.models.guild import Guild
+from shared.database.models.user import User
+from shared.database.models.war_result import WarResult
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,12 +26,13 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = shared.database.models.base.Base.metadata
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+config.set_main_option("sqlalchemy.url", str(DATABASE_URL))
 
 
 def run_migrations_offline() -> None:
