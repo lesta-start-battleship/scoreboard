@@ -13,9 +13,8 @@ if TYPE_CHECKING:
 class User(Base):
     __tablename__ = "user"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int]
-    guild_id: Mapped[int | None] = mapped_column(ForeignKey("guild.id"), nullable=True)
+    user_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
+    guild_id: Mapped[int | None] = mapped_column(ForeignKey("guild.guild_id"), nullable=True)
     name: Mapped[str] = mapped_column(unique=True)
     gold: Mapped[int]
     experience: Mapped[int]
