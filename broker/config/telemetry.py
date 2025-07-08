@@ -2,7 +2,7 @@ from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.kafka import KafkaInstrumentor
+from opentelemetry.instrumentation.aiokafka import AIOKafkaInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
 from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION
@@ -40,7 +40,7 @@ def instrument_broker():
     """Instrument the broker service with OpenTelemetry tracing."""
     
     # Instrument Kafka
-    KafkaInstrumentor().instrument()
+    AIOKafkaInstrumentor().instrument()
     
     # Instrument SQLAlchemy
     SQLAlchemyInstrumentor().instrument()

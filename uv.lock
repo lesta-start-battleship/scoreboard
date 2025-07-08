@@ -478,6 +478,21 @@ wheels = [
 ]
 
 [[package]]
+name = "opentelemetry-instrumentation-aiokafka"
+version = "0.55b1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-instrumentation" },
+    { name = "opentelemetry-semantic-conventions" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5d/fb/9e66a4c857191ae3a33c788c2d9d0421861255624c6615aa41a5cac6dbe3/opentelemetry_instrumentation_aiokafka-0.55b1.tar.gz", hash = "sha256:1385de193a57aaf9cbf4ebecc84e30f331d2f9dfbdce9d244d3cc2d570e595f1", size = 14272, upload-time = "2025-06-10T08:58:17.708Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d5/e6/1e79ad2792adc564a0faf7db271a203ba6920459745bfc6a14647e32d78c/opentelemetry_instrumentation_aiokafka-0.55b1-py3-none-any.whl", hash = "sha256:1bc10f819359a5644662fef3d690d0301d908886b21199c1d9a5f668922b4183", size = 13495, upload-time = "2025-06-10T08:57:19.084Z" },
+]
+
+[[package]]
 name = "opentelemetry-instrumentation-asgi"
 version = "0.55b1"
 source = { registry = "https://pypi.org/simple" }
@@ -521,20 +536,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2b/76/0df9cdff4cce18b1967e97152d419e2325c307ff96eb6ba8e69294690c18/opentelemetry_instrumentation_fastapi-0.55b1.tar.gz", hash = "sha256:bb9f8c13a053e7ff7da221248067529cc320e9308d57f3908de0afa36f6c5744", size = 20275, upload-time = "2025-06-10T08:58:29.281Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/84/6e/d608a9336ede3d15869c70ebdd4ec670f774641104b0873bb973bce9d822/opentelemetry_instrumentation_fastapi-0.55b1-py3-none-any.whl", hash = "sha256:af4c09aebb0bd6b4a0881483b175e76547d2bc96329c94abfb794bf44f29f6bb", size = 12713, upload-time = "2025-06-10T08:57:39.712Z" },
-]
-
-[[package]]
-name = "opentelemetry-instrumentation-kafka-python"
-version = "0.55b1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-semantic-conventions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/a5/2cd150a2bdb32c8cac236adc819d90aff432645ed77bd458ab9f252ee44b/opentelemetry_instrumentation_kafka_python-0.55b1.tar.gz", hash = "sha256:7ae80fbfe708338e0ebbfdb61f34ae94acc23b65e996f7c621d2ee86461c1f33", size = 10521, upload-time = "2025-06-10T08:58:32.543Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/94/5d42c37781133d745ac4447c72d7e73c4c8af197d0da34db8f0f632f17bb/opentelemetry_instrumentation_kafka_python-0.55b1-py3-none-any.whl", hash = "sha256:60ce3039993b49e4dd7118ddb3b5137f593aefac9f6cec3043e9dcf28263e95e", size = 11501, upload-time = "2025-06-10T08:57:44.937Z" },
 ]
 
 [[package]]
@@ -867,9 +868,9 @@ dependencies = [
     { name = "fastapi" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp-proto-grpc" },
+    { name = "opentelemetry-instrumentation-aiokafka" },
     { name = "opentelemetry-instrumentation-asyncpg" },
     { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-kafka-python" },
     { name = "opentelemetry-instrumentation-sqlalchemy" },
     { name = "opentelemetry-sdk" },
     { name = "psycopg2-binary" },
@@ -894,9 +895,9 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115.14" },
     { name = "opentelemetry-api", specifier = ">=1.34.1" },
     { name = "opentelemetry-exporter-otlp-proto-grpc", specifier = ">=1.34.1" },
+    { name = "opentelemetry-instrumentation-aiokafka", specifier = ">=0.55b1" },
     { name = "opentelemetry-instrumentation-asyncpg", specifier = ">=0.55b1" },
     { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.55b1" },
-    { name = "opentelemetry-instrumentation-kafka-python", specifier = ">=0.55b1" },
     { name = "opentelemetry-instrumentation-sqlalchemy", specifier = ">=0.55b1" },
     { name = "opentelemetry-sdk", specifier = ">=1.34.1" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
