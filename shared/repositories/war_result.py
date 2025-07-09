@@ -127,6 +127,13 @@ async def _get_attacker_defender_id(
     :return: Словарь с ключами attacker, defender, winner, содержащий id соответствующих им гильдий
     """
     exception = ValueError("Winner is not in Guild")
+    stmt = select(User.guild_id).where(User.user_id == winner_match_id)
+    result: Result = await session.execute(stmt)
+    guild_id = result.scalar_one_or_none()
+
+    if guild_id is None:
+        raise exception
+
     stmt = (
         select(WarResult)
         .options(
@@ -135,13 +142,6 @@ async def _get_attacker_defender_id(
         )
         .where(WarResult.war_id == war_id)
     )
-    result: Result = await session.execute(stmt)
-    guild_id = result.scalar_one_or_none()
-
-    if guild_id is None:
-        raise exception
-
-    stmt = select(WarResult).where(WarResult.war_id == war_id)
     result: Result = await session.execute(stmt)
     war_result: WarResult = result.scalar_one_or_none()
     if war_result is None:
