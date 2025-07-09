@@ -45,7 +45,7 @@ class UserConsumer:
                             await self.handle_currency_change(user_data)
 
                         await self.consumer.commit()
-                    except ValidationError as e:
+                    except Exception as e:
                         span.record_exception(e)
                         span.set_status(Status(StatusCode.ERROR, str(e)))
                         logger.error(f"Validation error: {e}")
@@ -56,10 +56,12 @@ class UserConsumer:
 
     async def handle_new_user(self, user_data: NewUserDTO):
         async with async_session() as session:
-            new_user = user_data.model_dump()
-            logger.debug(f"**NEW USERNAME** UsernameChangeDTO.model_dump {new_user}")
-            await create_user(session, **new_user)
-
+            try:
+                new_user = user_data.model_dump()
+                logger.debug(f"**NEW USERNAME** UsernameChangeDTO.model_dump {new_user}")
+                await create_user(session, **new_user)
+            except Exception:
+                raise
     async def handle_username_change(self, user_data: UsernameChangeDTO):
         async with async_session() as session:
             try:
