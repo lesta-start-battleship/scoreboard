@@ -150,6 +150,7 @@ services:
       - DB_PORT=${DB_PORT}
     depends_on:
       - sb-postgres
+      - jaeger
 
 volumes:
   sb-pg:
