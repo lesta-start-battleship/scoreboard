@@ -63,6 +63,8 @@ async def update_user(
     :return: Пользователь с обновленными данными
     """
     user: User | None = await session.get(User, user_id)
+    if user is None:
+        raise ValueError("User was not found")
     if name:
         user.name = name
     if gold:
