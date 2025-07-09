@@ -9,11 +9,11 @@ from shared.database.models.war_result import WarResult
 
 
 async def create_war_result(
-    session: AsyncSession,
-    attacker_id: int,
-    defender_id: int,
-    war_id: int,
-    correlation_id: int,
+        session: AsyncSession,
+        attacker_id: int,
+        defender_id: int,
+        war_id: int,
+        correlation_id: int,
 ) -> WarResult:
     """
     Создать новый счётчик войны гильдий, добавив его в базу данных
@@ -44,11 +44,11 @@ async def create_war_result(
 
 
 async def update_war_result(
-    session: AsyncSession,
-    war_id: int,
-    winner_match_id: int | None = None,
-    winner_war_id: int | None = None,
-    loser_war_id: int | None = None,
+        session: AsyncSession,
+        war_id: int,
+        winner_match_id: int | None = None,
+        winner_war_id: int | None = None,
+        loser_war_id: int | None = None,
 ) -> WarResult:
     """
     Обновить данные счёта о войне гильдий
@@ -133,15 +133,16 @@ async def _get_attacker_defender_id(
     if guild_id is None:
         raise exception
 
-    stmt = select(WarResult.attacker_id, WarResult.defender_id).where(
-        WarResult.war_id == war_id,
-        or_(WarResult.attacker_id == guild_id, WarResult.defender_id == guild_id),
-    )
+    stmt = select(WarResult).where(WarResult.war_id == war_id)
     result: Result = await session.execute(stmt)
-    attacker_defender = result.scalar_one_or_none()
+    war_result: WarResult = result.scalar_one_or_none()
+    if war_result is None:
+        raise ValueError("War result was not found")
+    attacker = war_result.attacker.guild_id
+    defender = war_result.defender.guild_id
     answer = {
-        "attacker": attacker_defender[0],
-        "defender": attacker_defender[1],
+        "attacker": attacker,
+        "defender": defender,
         "winner": guild_id,
     }
     return answer
