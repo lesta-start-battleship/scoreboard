@@ -62,7 +62,7 @@ class CoreConsumer:
 
                         await self.consumer.commit()
 
-                    except ValidationError as e:
+                    except Exception as e:
                         span.record_exception(e)
                         span.set_status(Status(StatusCode.ERROR, str(e)))
                         logger.error(f"Validation error: {e}")

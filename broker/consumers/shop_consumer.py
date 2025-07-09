@@ -30,7 +30,7 @@ class ShopConsumer:
                         user_data = ActionChestOpenDTO.model_validate_json(message.value)
                         await self.handle_action_chest_open(user_data)
                         await self.consumer.commit()
-                    except ValidationError as e:
+                    except Exception as e:
                         span.record_exception(e)
                         span.set_status(Status(StatusCode.ERROR, str(e)))
                         logger.error(f"Validation error: {e}")
