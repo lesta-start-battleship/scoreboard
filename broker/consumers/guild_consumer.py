@@ -1,6 +1,7 @@
 from aiokafka import AIOKafkaConsumer
 from pydantic_core._pydantic_core import ValidationError
 
+from broker.config.logger import setup_logger
 from broker.config.preferences import (
     GUILD_CREATE_TOPIC,
     GUILD_DELETE_TOPIC,
@@ -16,6 +17,8 @@ from shared.repositories.guild import create_guild, delete_guild, update_guild
 from shared.repositories.user import update_user
 from shared.repositories.war_result import create_war_result
 
+logger = setup_logger("user_consumer")
+
 
 class GuildConsumer:
     def __init__(self, kafka_servers: str, topic: str):
@@ -29,6 +32,7 @@ class GuildConsumer:
 
     async def consume(self):
         await self.consumer.start()
+        logger.info(f"GuildConsumer started consume topic {self.topic}")
         try:
 
             async for message in self.consumer:
@@ -53,29 +57,49 @@ class GuildConsumer:
                     await self.consumer.commit()
 
                 except ValidationError as e:
-                    print(f"Ошибка валидации данных: {e}")
+                    logger.error(f"Ошибка валидации данных: {e}")
+                    pass
 
         finally:
             await self.consumer.stop()
+            logger.info("GuildConsumer stopped")
 
     async def handle_new_guild(self, data: GuildCreateDTO):
         async with async_session() as session:
             new_guild = data.model_dump(exclude={"user_owner_id"})
+            logger.debug(f"**NEW GUILD** GuildCreateDTO.model_dump {new_guild}")
             await create_guild(session, **new_guild)
             await update_user(session, user_id=data.user_owner_id, guild_id=data.guild_id)
 
     async def handle_delete_guild(self, data: GuildDeleteDTO):
         async with async_session() as session:
-            data = data.model_dump()
-            await delete_guild(session, **data)
+            try:
+                data = data.model_dump()
+                logger.debug(f"**DELETE GUILD** GuildDeleteDTO.model_dump {data}")
+                await delete_guild(session, **data)
+            except ValueError:
+                pass
 
     async def handle_member_change_guild(self, data: GuildMemberChangeDTO):
         async with async_session() as session:
-            guild_data = data.model_dump(include={"guild_id", "players"})
-            await update_guild(session, **guild_data)
-            await update_user(session, user_id=data.user_id, guild_id=data.guild_id, leaving_guild=bool(data.action))
+            try:
+                guild_data = data.model_dump(include={"guild_id", "players"})
+                logger.debug(f"**MEMBER CHANGE GUILD** GuildMemberChangeDTO.model_dump {data}")
+                await update_guild(session, **guild_data)
+                await update_user(
+                    session=session,
+                    user_id=data.user_id,
+                    guild_id=data.guild_id,
+                    leaving_guild=not bool(data.action)
+                )
+            except ValueError:
+                pass
 
     async def handle_start_guild_war(self, data: GuildWarDTO):
         async with async_session() as session:
-            data = data.model_dump()
-            await create_war_result(session, **data)
+            try:
+                data = data.model_dump()
+                logger.debug(f"**GUILD WAR** GuildWarDTO.model_dump {data}")
+                await create_war_result(session, **data)
+            except Exception:
+                logger.error("Some error occurred")
