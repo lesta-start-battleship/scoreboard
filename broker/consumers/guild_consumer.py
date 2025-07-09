@@ -1,4 +1,5 @@
 from aiokafka import AIOKafkaConsumer
+from opentelemetry.trace import Status, StatusCode
 from pydantic_core._pydantic_core import ValidationError
 
 from broker.config.logger import setup_logger
@@ -8,6 +9,7 @@ from broker.config.preferences import (
     GUILD_MEMBER_CHANGE_TOPIC,
     GUILD_START_GUILD_WAR_TOPIC
 )
+from broker.config.telemetry import get_tracer
 from broker.schemas.guild.guild_create import GuildCreateDTO
 from broker.schemas.guild.guild_delete import GuildDeleteDTO
 from broker.schemas.guild.guild_member_change import GuildMemberChangeDTO
@@ -36,29 +38,30 @@ class GuildConsumer:
         try:
 
             async for message in self.consumer:
-                try:
+                with get_tracer(__name__).start_as_current_span("consume_guild_message") as span:
+                    try:
+                        if self.topic == GUILD_CREATE_TOPIC:
+                            data = GuildCreateDTO.model_validate_json(message.value)
+                            await self.handle_new_guild(data)
 
-                    if self.topic == GUILD_CREATE_TOPIC:
-                        data = GuildCreateDTO.model_validate_json(message.value)
-                        await self.handle_new_guild(data)
+                        elif self.topic == GUILD_DELETE_TOPIC:
+                            data = GuildDeleteDTO.model_validate_json(message.value)
+                            await self.handle_delete_guild(data)
 
-                    elif self.topic == GUILD_DELETE_TOPIC:
-                        data = GuildDeleteDTO.model_validate_json(message.value)
-                        await self.handle_delete_guild(data)
+                        elif self.topic == GUILD_MEMBER_CHANGE_TOPIC:
+                            data = GuildMemberChangeDTO.model_validate_json(message.value)
+                            await self.handle_member_change_guild(data)
 
-                    elif self.topic == GUILD_MEMBER_CHANGE_TOPIC:
-                        data = GuildMemberChangeDTO.model_validate_json(message.value)
-                        await self.handle_member_change_guild(data)
+                        elif self.topic == GUILD_START_GUILD_WAR_TOPIC:
+                            data = GuildWarDTO.model_validate_json(message.value)
+                            await self.handle_start_guild_war(data)
 
-                    elif self.topic == GUILD_START_GUILD_WAR_TOPIC:
-                        data = GuildWarDTO.model_validate_json(message.value)
-                        await self.handle_start_guild_war(data)
+                        await self.consumer.commit()
 
-                    await self.consumer.commit()
-
-                except ValidationError as e:
-                    logger.error(f"Ошибка валидации данных: {e}")
-                    pass
+                    except ValidationError as e:
+                        span.record_exception(e)
+                        span.set_status(Status(StatusCode.ERROR, str(e)))
+                        logger.error(f"Validation error: {e}")
 
         finally:
             await self.consumer.stop()

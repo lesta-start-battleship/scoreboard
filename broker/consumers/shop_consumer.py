@@ -1,7 +1,9 @@
 from aiokafka import AIOKafkaConsumer
+from opentelemetry.trace import Status, StatusCode
 from pydantic_core._pydantic_core import ValidationError
 
 from broker.config.logger import setup_logger
+from broker.config.telemetry import get_tracer
 from broker.schemas.shop.action_chest_open import ActionChestOpenDTO
 from shared.database.database import async_session
 from shared.repositories.user import update_user
@@ -22,18 +24,16 @@ class ShopConsumer:
         await self.consumer.start()
         logger.info(f"ShopConsumer started consume topic {self.topic}")
         try:
-
             async for message in self.consumer:
-                try:
-
-                    user_data = ActionChestOpenDTO.model_validate_json(message.value)
-                    logger.debug(f"user data from ActionChestOpenDTO {user_data}")
-                    await self.handle_action_chest_open(user_data)
-
-                    await self.consumer.commit()
-
-                except ValidationError as e:
-                    print(f"Ошибка валидации данных: {e}")
+                with get_tracer(__name__).start_as_current_span("consume_shop_message") as span:
+                    try:
+                        user_data = ActionChestOpenDTO.model_validate_json(message.value)
+                        await self.handle_action_chest_open(user_data)
+                        await self.consumer.commit()
+                    except ValidationError as e:
+                        span.record_exception(e)
+                        span.set_status(Status(StatusCode.ERROR, str(e)))
+                        logger.error(f"Validation error: {e}")
 
         finally:
             await self.consumer.stop()

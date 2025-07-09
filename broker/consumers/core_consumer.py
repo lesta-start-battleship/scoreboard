@@ -1,6 +1,7 @@
 import json
 
 from aiokafka import AIOKafkaConsumer
+from opentelemetry.trace import Status, StatusCode
 from pydantic_core import ValidationError
 
 from broker.config.logger import setup_logger
@@ -37,32 +38,34 @@ class CoreConsumer:
         try:
 
             async for message in self.consumer:
-                try:
-                    match_type: str = json.loads(message.value)["match_type"]
-                    if match_type == mt.RANDOM.value:
-                        data = MatchRandomDTO.model_validate_json(message.value)
-                        logger.debug(f"**RANDOM** MatchRandomDTO {data}")
-                        await self.handle_random_match(data)
-                    elif match_type == mt.RANKED.value:
-                        data = MatchRankedDTO.model_validate_json(message.value)
-                        logger.debug(f"**RANKED** MatchRankedDTO {data}")
-                        await self.handle_ranked_match(data)
-                    elif match_type == mt.CUSTOM.value:
-                        data = MatchCustomDTO.model_validate_json(message.value)
-                        logger.debug(f"**CUSTOM** MatchCustomDTO {data}")
-                        await self.handle_custom_match(data)
-                    elif match_type == mt.GUILD_WAR_MATCH.value:
-                        data = MatchGuildWarDTO.model_validate_json(message.value)
-                        logger.debug(f"**GUILD WAR** MatchGuildWarDTO {data}")
-                        await self.handle_guild_war_match(data)
-                    else:
-                        raise ValueError(f"Unknown match type {match_type}")
+                with get_tracer(__name__).start_as_current_span("consume_core_message") as span:
+                    try:
+                        match_type: str = json.loads(message.value)["match_type"]
+                        if match_type == mt.RANDOM.value:
+                            data = MatchRandomDTO.model_validate_json(message.value)
+                            logger.debug(f"**RANDOM** MatchRandomDTO {data}")
+                            await self.handle_random_match(data)
+                        elif match_type == mt.RANKED.value:
+                            data = MatchRankedDTO.model_validate_json(message.value)
+                            logger.debug(f"**RANKED** MatchRankedDTO {data}")
+                            await self.handle_ranked_match(data)
+                        elif match_type == mt.CUSTOM.value:
+                            data = MatchCustomDTO.model_validate_json(message.value)
+                            logger.debug(f"**CUSTOM** MatchCustomDTO {data}")
+                            await self.handle_custom_match(data)
+                        elif match_type == mt.GUILD_WAR_MATCH.value:
+                            data = MatchGuildWarDTO.model_validate_json(message.value)
+                            logger.debug(f"**GUILD WAR** MatchGuildWarDTO {data}")
+                            await self.handle_guild_war_match(data)
+                        else:
+                            raise ValueError(f"Unknown match type {match_type}")
 
-                    await self.consumer.commit()
+                        await self.consumer.commit()
 
-                except ValidationError as e:
-                    logger.error(f"Ошибка валидации данных: {e}\n")
-                    pass
+                    except ValidationError as e:
+                        span.record_exception(e)
+                        span.set_status(Status(StatusCode.ERROR, str(e)))
+                        logger.error(f"Validation error: {e}")
 
         finally:
             await self.consumer.stop()

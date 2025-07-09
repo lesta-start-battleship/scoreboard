@@ -1,8 +1,10 @@
 from aiokafka import AIOKafkaConsumer
+from opentelemetry.trace import Status, StatusCode
 from pydantic_core._pydantic_core import ValidationError
 
 from broker.config.logger import setup_logger
 from broker.config.preferences import NEW_USER_TOPIC, USERNAME_CHANGE_TOPIC, CURRENCY_CHANGE_TOPIC
+from broker.config.telemetry import get_tracer
 from broker.schemas.user.currency_change import CurrencyChangeDTO
 from broker.schemas.user.new_user import NewUserDTO
 from broker.schemas.user.username_change import UsernameChangeDTO
@@ -28,24 +30,25 @@ class UserConsumer:
         try:
 
             async for message in self.consumer:
-                try:
+                with get_tracer(__name__).start_as_current_span("consume_user_message") as span:
+                    try:
+                        if self.topic == NEW_USER_TOPIC:
+                            user_data = NewUserDTO.model_validate_json(message.value)
+                            await self.handle_new_user(user_data)
 
-                    if self.topic == NEW_USER_TOPIC:
-                        user_data = NewUserDTO.model_validate_json(message.value)
-                        await self.handle_new_user(user_data)
+                        elif self.topic == USERNAME_CHANGE_TOPIC:
+                            user_data = UsernameChangeDTO.model_validate_json(message.value)
+                            await self.handle_username_change(user_data)
 
-                    elif self.topic == USERNAME_CHANGE_TOPIC:
-                        user_data = UsernameChangeDTO.model_validate_json(message.value)
-                        await self.handle_username_change(user_data)
+                        elif self.topic == CURRENCY_CHANGE_TOPIC:
+                            user_data = CurrencyChangeDTO.model_validate_json(message.value)
+                            await self.handle_currency_change(user_data)
 
-                    elif self.topic == CURRENCY_CHANGE_TOPIC:
-                        user_data = CurrencyChangeDTO.model_validate_json(message.value)
-                        await self.handle_currency_change(user_data)
-
-                    await self.consumer.commit()
-
-                except ValidationError as e:
-                    logger.error(f"Ошибка валидации данных: {e}")
+                        await self.consumer.commit()
+                    except ValidationError as e:
+                        span.record_exception(e)
+                        span.set_status(Status(StatusCode.ERROR, str(e)))
+                        logger.error(f"Validation error: {e}")
 
         finally:
             await self.consumer.stop()
