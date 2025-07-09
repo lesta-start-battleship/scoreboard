@@ -6,10 +6,10 @@ from broker.config.preferences import (
     GUILD_DELETE_TOPIC,
     GUILD_MEMBER_CHANGE_TOPIC, GUILD_START_GUILD_WAR_TOPIC
 )
-# from broker.config.telemetry import setup_broker_telemetry
+from broker.config.telemetry import setup_broker_telemetry
 from broker.consumers.guild_consumer import GuildConsumer
 
-# setup_broker_telemetry(app_name="scoreboard-guild-worker-broker", app_version="0.1.0")
+setup_broker_telemetry(app_name="scoreboard-guild-worker-broker", app_version="0.1.0")
 
 
 async def main():

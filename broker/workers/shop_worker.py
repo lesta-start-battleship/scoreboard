@@ -1,10 +1,10 @@
 import asyncio
 
 from broker.config.preferences import KAFKA_SERVER, CHEST_OPEN_TOPIC
-# from broker.config.telemetry import setup_broker_telemetry
+from broker.config.telemetry import setup_broker_telemetry
 from broker.consumers.shop_consumer import ShopConsumer
 
-# setup_broker_telemetry(app_name="scoreboard-shop-worker-broker", app_version="0.1.0")
+setup_broker_telemetry(app_name="scoreboard-shop-worker-broker", app_version="0.1.0")
 
 
 async def main():
