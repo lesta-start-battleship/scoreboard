@@ -1,10 +1,12 @@
 from aiokafka import AIOKafkaConsumer
 from pydantic_core._pydantic_core import ValidationError
 
+from broker.config.logger import setup_logger
 from broker.schemas.shop.action_chest_open import ActionChestOpenDTO
 from shared.database.database import async_session
 from shared.repositories.user import update_user
 
+logger = setup_logger("shop_consumer")
 
 class ShopConsumer:
     def __init__(self, kafka_servers: str, topic: str):
@@ -24,6 +26,7 @@ class ShopConsumer:
                 try:
 
                     user_data = ActionChestOpenDTO.model_validate_json(message.value)
+                    logger.debug(f"user data from ActionChestOpenDTO {user_data}")
                     await self.handle_action_chest_open(user_data)
 
                     await self.consumer.commit()
@@ -36,4 +39,7 @@ class ShopConsumer:
 
     async def handle_action_chest_open(self, user_data: ActionChestOpenDTO):
         async with async_session() as session:
-            await update_user(session, user_id=user_data.user_id, containers=1, experience=user_data.exp)
+            try:
+                await update_user(session, user_id=user_data.user_id, containers=1, experience=user_data.exp)
+            except ValueError:
+                pass
