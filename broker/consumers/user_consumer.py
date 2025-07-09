@@ -54,6 +54,7 @@ class UserConsumer:
     async def handle_new_user(self, user_data: NewUserDTO):
         async with async_session() as session:
             new_user = user_data.model_dump()
+            logger.debug(f"**NEW USERNAME** UsernameChangeDTO.model_dump {new_user}")
             await create_user(session, **new_user)
 
     async def handle_username_change(self, user_data: UsernameChangeDTO):

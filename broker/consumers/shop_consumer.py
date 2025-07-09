@@ -20,6 +20,7 @@ class ShopConsumer:
 
     async def consume(self):
         await self.consumer.start()
+        logger.info(f"ShopConsumer started consume topic {self.topic}")
         try:
 
             async for message in self.consumer:
@@ -36,6 +37,7 @@ class ShopConsumer:
 
         finally:
             await self.consumer.stop()
+            logger.info("ShopConsumer stopped")
 
     async def handle_action_chest_open(self, user_data: ActionChestOpenDTO):
         async with async_session() as session:
