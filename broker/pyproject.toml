@@ -12,6 +12,7 @@ dependencies = [
     "opentelemetry-sdk>=1.34.1",
     "shared",
     "colorlog>=6.9.0",
+    "python-snappy>=0.7.3",
 ]
 
 [tool.uv.sources]
