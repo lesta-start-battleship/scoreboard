@@ -1,8 +1,21 @@
 services:
-  sb_pg:
-    image: postgres:15-alpine
+
+  jaeger:
+    image: jaegertracing/jaeger:latest
+    container_name: jaeger
     restart: always
-    container_name: sb_pg
+    env_file:
+      - .env
+    ports:
+      - "4317:4317"  # OTLP gRPC endpoint
+      - "16686:16686"
+
+  sb-postgres:
+    image: postgres:15-alpine
+    container_name: sb-postgres
+    restart: always
+    env_file:
+      - .env
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -12,25 +25,145 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER" ]
+      test: [ "CMD-SHELL", "pg_isready -U $DB_USER" ]
       interval: 5s
       timeout: 3s
       retries: 5
 
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile.migration
+    container_name: migration
+    env_file:
+      - .env
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
+      - DB_PORT=${DB_PORT}
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@sb-postgres:${DB_PORT}/${DB_NAME}
+    depends_on:
+      sb-postgres:
+        condition: service_healthy
+
   scoreboard:
     build:
       context: .
+      dockerfile: app/Dockerfile
     container_name: scoreboard
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
     depends_on:
-      - sb_pg
+      - sb-postgres
+      - jaeger
+    env_file:
+      - .env
     environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
+      - DB_PORT=${DB_PORT}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://jaeger:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+
+  user-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: user-worker
+    command: uv run -m broker.workers.user_worker
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - NEW_USER_TOPIC=${NEW_USER_TOPIC}
+      - CURRENCY_CHANGE_TOPIC=${CURRENCY_CHANGE_TOPIC}
+      - USERNAME_CHANGE_TOPIC=${USERNAME_CHANGE_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
+      - DB_PORT=${DB_PORT}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://jaeger:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+    depends_on:
+      - sb-postgres
+      - jaeger
+
+  shop-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: shop-worker
+    command: uv run -m broker.workers.shop_worker
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - CHEST_OPEN_TOPIC=${CHEST_OPEN_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
+      - DB_PORT=${DB_PORT}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://jaeger:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+    depends_on:
+      - sb-postgres
+      - jaeger
+
+  guild-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: guild-worker
+    command: uv run -m broker.workers.guild_worker
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - GUILD_CREATE_TOPIC=${GUILD_CREATE_TOPIC}
+      - GUILD_DELETE_TOPIC=${GUILD_DELETE_TOPIC}
+      - GUILD_MEMBER_CHANGE_TOPIC=${GUILD_MEMBER_CHANGE_TOPIC}
+      - GUILD_START_GUILD_WAR_TOPIC=${GUILD_START_GUILD_WAR_TOPIC}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=sb-postgres  # Override to use Docker service name
+      - DB_PORT=${DB_PORT}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://jaeger:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+    depends_on:
+      - sb-postgres
+      - jaeger
+
+  game-worker:
+    build:
+      context: .
+      dockerfile: broker/Dockerfile
+    container_name: game-worker
+    command: uv run -m broker.workers.core_worker
+    restart: always
+    environment:
+      - KAFKA_SERVER=${KAFKA_SERVER}
+      - GUILD_WAR_END_TOPIC=${GUILD_WAR_END_TOPIC}
+      - CORE_MATCH_END_TOPIC=${CORE_MATCH_END_TOPIC}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=grpc://jaeger:4317
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+    depends_on:
+      - sb-postgres
+      - jaeger
+
 volumes:
   sb-pg:

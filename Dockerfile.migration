@@ -1,0 +1,50 @@
+FROM python:3.12-slim
+
+# Install system dependencies for database connections
+RUN apt-get update && apt-get install -y \
+    netcat-traditional \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set workspace root as working directory
+WORKDIR /workspace
+
+# Copy workspace configuration files
+COPY pyproject.toml ./
+COPY uv.lock ./
+
+# Copy shared project configuration
+COPY shared/pyproject.toml shared/
+
+# Copy the entire shared package
+COPY shared/ shared/
+
+# Install dependencies with editable shared package
+ENV UV_LINK_MODE=copy
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --project shared --group dev
+
+# Set PYTHONPATH to include workspace root so shared can be imported
+ENV PYTHONPATH=/workspace
+
+# Wait for database script
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "Waiting for database..."\n\
+until nc -z ${DB_HOST:-sb-postgres} ${DB_PORT:-5432}; do\n\
+  echo "Database is unavailable - sleeping"\n\
+  sleep 1\n\
+done\n\
+echo "Database is up - running migrations"\n\
+exec "$@"' > /wait-for-db.sh && chmod +x /wait-for-db.sh
+
+# Set entrypoint to wait for database
+ENTRYPOINT ["/wait-for-db.sh"]
+
+# Stay in workspace root for uv commands
+WORKDIR /workspace
+
+# Run alembic upgrade by default with proper working directory
+CMD ["sh", "-c", "cd shared && uv run --project . alembic upgrade head"]

@@ -1,0 +1,23 @@
+[project]
+name = "broker"
+version = "0.1.0"
+description = "Scoreboard Kafka message broker"
+requires-python = ">=3.12"
+dependencies = [
+    "aiokafka>=0.12.0",
+    "pydantic>=2.11.7",
+    "opentelemetry-api>=1.34.1",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.34.1",
+    "opentelemetry-instrumentation-aiokafka>=0.55b1",
+    "opentelemetry-sdk>=1.34.1",
+    "shared",
+    "colorlog>=6.9.0",
+    "python-snappy>=0.7.3",
+]
+
+[tool.uv.sources]
+shared = { workspace = true }
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
