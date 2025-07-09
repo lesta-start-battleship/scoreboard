@@ -34,7 +34,7 @@ def setup_broker_telemetry(app_name: str = "scoreboard-broker", app_version: str
         tracer_provider.add_span_processor(BatchSpanProcessor(console_exporter))
     
     trace.set_tracer_provider(tracer_provider)
-
+    instrument_broker()
 
 def instrument_broker():
     """Instrument the broker service with OpenTelemetry tracing."""
