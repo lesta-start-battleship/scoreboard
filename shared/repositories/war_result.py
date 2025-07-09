@@ -148,6 +148,8 @@ async def _get_attacker_defender_id(
         raise ValueError("War result was not found")
     attacker = war_result.attacker.guild_id
     defender = war_result.defender.guild_id
+    if guild_id not in (attacker, defender):
+        raise ValueError("Winner not in this war")
     answer = {
         "attacker": attacker,
         "defender": defender,
