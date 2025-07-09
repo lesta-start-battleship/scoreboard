@@ -66,7 +66,7 @@ async def update_war_result(
     if war_result.winner_id is not None:
         raise exception
     if winner_match_id:
-        guilds_id = _get_attacker_defender_id(
+        guilds_id = await _get_attacker_defender_id(
             session=session, war_id=war_id, winner_match_id=winner_match_id
         )
         if guilds_id["winner"] == guilds_id["attacker"]:

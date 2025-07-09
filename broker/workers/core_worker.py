@@ -1,11 +1,11 @@
 import asyncio
 
 from broker.config.preferences import KAFKA_SERVER, CORE_MATCH_END_TOPIC, GUILD_WAR_END_TOPIC
-from broker.config.telemetry import setup_broker_telemetry
+# from broker.config.telemetry import setup_broker_telemetry
 from broker.consumers.core_consumer import CoreConsumer
 from broker.producers.guild_war_produser import GuildWarProducer
 
-setup_broker_telemetry(app_name="scoreboard-game-worker-broker", app_version="0.1.0")
+# setup_broker_telemetry(app_name="scoreboard-game-worker-broker", app_version="0.1.0")
 
 async def main():
     producer_game = GuildWarProducer(KAFKA_SERVER, GUILD_WAR_END_TOPIC)
