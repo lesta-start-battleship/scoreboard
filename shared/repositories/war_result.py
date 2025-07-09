@@ -2,6 +2,7 @@ from typing import Sequence
 
 from sqlalchemy import select, or_, Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from shared.database.models.guild import Guild
 from shared.database.models.user import User
@@ -126,7 +127,14 @@ async def _get_attacker_defender_id(
     :return: Словарь с ключами attacker, defender, winner, содержащий id соответствующих им гильдий
     """
     exception = ValueError("Winner is not in Guild")
-    stmt = select(User.guild_id).where(User.user_id == winner_match_id)
+    stmt = (
+        select(WarResult)
+        .options(
+            joinedload(WarResult.attacker),
+            joinedload(WarResult.defender)
+        )
+        .where(WarResult.war_id == war_id)
+    )
     result: Result = await session.execute(stmt)
     guild_id = result.scalar_one_or_none()
 
