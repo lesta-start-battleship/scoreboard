@@ -58,10 +58,30 @@ class UserConsumer:
 
     async def handle_username_change(self, user_data: UsernameChangeDTO):
         async with async_session() as session:
-            new_user_data = user_data.model_dump()
-            await update_user(session, **new_user_data)
+            try:
+                new_user_data = user_data.model_dump()
+                logger.debug(f"**USERNAME CHANGE** UsernameChangeDTO.model_dump {new_user_data}")
+                await update_user(session, **new_user_data)
+            except AttributeError:
+                logger.error(f"**USERNAME CHANGE** user with user_id={user_data.user_id} does not exists in db")
+                pass
+            except ValueError:
+                pass
+            except Exception:
+                logger.error(f"**USERNAME CHANGE** some problems")
+                pass
 
     async def handle_currency_change(self, user_data: CurrencyChangeDTO):
         async with async_session() as session:
-            new_user_data = user_data.model_dump()
-            await update_user(session, **new_user_data)
+            try:
+                new_user_data = user_data.model_dump()
+                logger.debug(f"**CURRENCY CHANGE** CurrencyChangeDTO.model_dump {new_user_data}")
+                await update_user(session, **new_user_data)
+            except AttributeError:
+                logger.error(f"**CURRENCY CHANGE** user with user_id={user_data.user_id} does not exists in db")
+                pass
+            except ValueError:
+                pass
+            except Exception:
+                logger.error(f"**USERNAME CHANGE** some problems")
+                pass
