@@ -46,7 +46,7 @@ async def get_war_results(
     # Convert to schemas
     items = [
         WarResultSchema(
-            id=war_result.id,
+            id=war_result.war_id,
             attacker_id=war_result.attacker_id,
             defender_id=war_result.defender_id,
             attacker_score=war_result.attacker_score,

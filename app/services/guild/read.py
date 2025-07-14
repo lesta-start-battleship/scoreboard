@@ -29,7 +29,7 @@ async def get_guilds(
     total = total_result.scalar()
 
     # Pagination
-    query = query.offset(pagination.page * pagination.limit).limit(pagination.limit)
+    query = query.offset((pagination.page - 1) * pagination.limit).limit(pagination.limit)
 
     # Execute
     result = await db.execute(query)
@@ -37,10 +37,14 @@ async def get_guilds(
 
     # Transform rows
     guild_schemas = [
-        GuildSchema.model_validate(guild).model_copy(update={
-            "players_pos": players_pos,
-            "wins_pos": wins_pos,
-        })
+        GuildSchema(
+            id=guild.guild_id,
+            tag=guild.tag,
+            players=guild.players,
+            playes_rating_pos=players_pos,
+            wins=guild.wins,
+            wins_rating_pos=wins_pos,
+        )
         for guild, players_pos, wins_pos in rows
     ]
 

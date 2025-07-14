@@ -37,7 +37,7 @@ async def get_users(
     total = total_result.scalar()
 
     # Apply pagination
-    query = query.offset(pagination.page * pagination.limit).limit(pagination.limit)
+    query = query.offset((pagination.page - 1) * pagination.limit).limit(pagination.limit)
 
     # Execute query
     result = await db.execute(query)
@@ -45,12 +45,18 @@ async def get_users(
 
     # Convert rows to schema
     user_schemas = [
-        UserSchema.model_validate(user).model_copy(update={
-            "gold_rating_pos": gold_pos,
-            "exp_rating_pos": exp_pos,
-            "rating_rating_pos": rating_pos,
-            "chests_opened_pos": chests_pos,
-        })
+        UserSchema(
+            id=user.user_id,
+            name=user.name,
+            gold=user.gold,
+            gold_rating_pos=gold_pos,
+            experience=user.experience,
+            exp_rating_pos=exp_pos,
+            rating=user.rating,
+            rating_rating_pos=rating_pos,
+            chests_opened=user.containers,
+            chests_opened_pos=chests_pos,
+        )
         for user, gold_pos, exp_pos, rating_pos, chests_pos in rows
     ]
 

@@ -14,7 +14,7 @@ from app.schemas.pagination import PaginationResponse
 class GuildSchema(BaseSchema):
     """Schema for user data."""
 
-    id: UUID = Field(..., description="Unique identifier of the user")
+    id: int = Field(..., description="Unique identifier of the user")
     tag: str = Field(..., description="Tag of the guild")
     players: int = Field(..., description="Number of players in the guild")
     playes_rating_pos: int = Field(
@@ -31,7 +31,7 @@ class GuildPaginationResponse(PaginationResponse[GuildSchema]):
 class GuildFilterRequest(BaseFilterSchema):
     """Schema for filtering user data."""
 
-    ids: list[UUID] | None = BaseField(
+    ids: list[int] | None = BaseField(
         default=None,
         description="Guild IDs to filter users by",
         filter_type=FilterType.in_list,
@@ -82,3 +82,5 @@ class GuildFilterRequest(BaseFilterSchema):
                 ],
             )
         )
+
+

@@ -10,7 +10,7 @@ from app.schemas.pagination import PaginationResponse
 class UserSchema(BaseSchema):
     """Schema for user data."""
     
-    id: UUID = Field(..., description="Unique identifier of the user")
+    id: int = Field(..., description="Unique identifier of the user")
     name: str = Field(..., description="Name of the user")
     gold: int = Field(..., description="Amount of gold the user has")
     gold_rating_pos: int = Field(..., description="User's position in the gold rating")
@@ -28,7 +28,7 @@ class UserPaginationResponse(PaginationResponse[UserSchema]):
 class UserFilterRequest(BaseFilterSchema):
     """Schema for filtering user data."""
     
-    ids: list[UUID] | None = BaseField(default=None, description="User IDs to filter users by", filter_type=FilterType.in_list, table_column="id")
+    ids: list[int] | None = BaseField(default=None, description="User IDs to filter users by", filter_type=FilterType.in_list, table_column="id")
 
     name_ilike: str | None = BaseField(default=None, description="User name", filter_type=FilterType.ilike, table_column="name")
 
