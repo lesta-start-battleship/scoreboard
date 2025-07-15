@@ -28,7 +28,7 @@ class UserPaginationResponse(PaginationResponse[UserSchema]):
 class UserFilterRequest(BaseFilterSchema):
     """Schema for filtering user data."""
     
-    ids: list[int] | None = BaseField(default=None, description="User IDs to filter users by", filter_type=FilterType.in_list, table_column="id")
+    ids: list[int] | None = BaseField(default=None, description="User IDs to filter users by", filter_type=FilterType.in_list, table_column="user_id")
 
     name_ilike: str | None = BaseField(default=None, description="User name", filter_type=FilterType.ilike, table_column="name")
 
@@ -44,7 +44,7 @@ class UserFilterRequest(BaseFilterSchema):
             filter(
                 None,
                 [
-                    InListSpecification(field="id", value=self.ids) if self.ids else None,
+                    InListSpecification(field="user_id", value=self.ids) if self.ids else None,
                     ILikeSpecification(field="name", value=self.name_ilike) if self.name_ilike else None,
                 ],
             )

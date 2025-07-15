@@ -35,7 +35,7 @@ class GuildFilterRequest(BaseFilterSchema):
         default=None,
         description="Guild IDs to filter users by",
         filter_type=FilterType.in_list,
-        table_column="id",
+        table_column="user_id",
     )
 
     tag_ilike: str | None = BaseField(
@@ -53,7 +53,7 @@ class GuildFilterRequest(BaseFilterSchema):
                 None,
                 [
                     InListSpecification(
-                        field="id",
+                        field="user_id",
                         value=self.ids,
                     )
                     if self.ids

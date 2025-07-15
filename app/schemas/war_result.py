@@ -36,7 +36,7 @@ class WarResultFilterRequest(BaseFilterSchema):
         default=None, 
         description="War result IDs to filter by", 
         filter_type=FilterType.in_list, 
-        table_column="id"
+        table_column="war_id"
     )
     
     attacker_ids: list[int] | None = BaseField(
@@ -51,13 +51,6 @@ class WarResultFilterRequest(BaseFilterSchema):
         description="Defender guild IDs to filter by", 
         filter_type=FilterType.in_list, 
         table_column="defender_id"
-    )
-    
-    war_ids: list[int] | None = BaseField(
-        default=None, 
-        description="War IDs to filter by", 
-        filter_type=FilterType.in_list, 
-        table_column="war_id"
     )
     
     winner_id: int | None = BaseField(
@@ -76,10 +69,9 @@ class WarResultFilterRequest(BaseFilterSchema):
             filter(
                 None,
                 [
-                    InListSpecification(field="id", value=self.ids) if self.ids else None,
+                    InListSpecification(field="war_id", value=self.ids) if self.ids else None,
                     InListSpecification(field="attacker_id", value=self.attacker_ids) if self.attacker_ids else None,
                     InListSpecification(field="defender_id", value=self.defender_ids) if self.defender_ids else None,
-                    InListSpecification(field="war_id", value=self.war_ids) if self.war_ids else None,
                     EqualsSpecification(field="winner_id", value=self.winner_id) if self.winner_id else None,
                 ],
             )
